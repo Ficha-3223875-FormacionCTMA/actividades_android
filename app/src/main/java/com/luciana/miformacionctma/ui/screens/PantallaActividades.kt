@@ -15,99 +15,159 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.luciana.miformacionctma.domain.ActividadFormativa
 import com.luciana.miformacionctma.domain.Prioridad
+import com.luciana.miformacionctma.domain.buscarPorTitulo
 import com.luciana.miformacionctma.domain.promedioProgreso
 import com.luciana.miformacionctma.ui.components.TarjetaActividad
-
-
-// =========================================================
-// PANTALLA PRINCIPAL
-// =========================================================
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaActividades(
     actividades: List<ActividadFormativa>,
-    onActividadClick: (ActividadFormativa) -> Unit = {}
+    onActividadClick: (ActividadFormativa) -> Unit = {},
+    onCrearActividad: () -> Unit = {}
 ) {
+
+    var textoBusqueda by remember {
+        mutableStateOf("")
+    }
+
+    val actividadesFiltradas =
+        if (textoBusqueda.isBlank()) {
+            actividades
+        } else {
+            buscarPorTitulo(
+                actividades = actividades,
+                texto = textoBusqueda
+            )
+        }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Mi Formación CTMA"
-                    )
+                    Text("Mi Formación CTMA")
                 }
             )
         }
     ) { paddingValues ->
 
-        // =================================================
-        // ESTADO VACÍO
-        // =================================================
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+        ) {
 
-        if (actividades.isEmpty()) {
-
-            EstadoVacio(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
+            Text(
+                text = "Actividades formativas",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    bottom = 4.dp
+                )
             )
 
-        } else {
+            Text(
+                text = "Consulta tus actividades, estados y progreso.",
+                style = MaterialTheme.typography.bodyMedium
+            )
 
-            Column(
+            Button(
+                onClick = onCrearActividad,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
             ) {
+                Text("Crear actividad")
+            }
 
-                // =================================================
-                // ENCABEZADO
-                // =================================================
+            OutlinedTextField(
+                value = textoBusqueda,
+                onValueChange = {
+                    textoBusqueda = it
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                label = {
+                    Text("Buscar actividad")
+                },
+                placeholder = {
+                    Text("Escribe un título...")
+                },
+                singleLine = true
+            )
 
-                Text(
-                    text = "Actividades formativas",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(
-                        top = 16.dp,
-                        bottom = 4.dp
+            Text(
+                text = "Total: ${actividades.size} actividades",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Text(
+                text = "Mostrando: ${actividadesFiltradas.size}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
+                text = "Promedio de progreso: ${
+                    "%.1f".format(
+                        promedioProgreso(actividades)
                     )
-                )
+                }%",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
 
-                Text(
-                    text = "Consulta tus actividades, estados y progreso.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            if (actividadesFiltradas.isEmpty()) {
 
-                Text(
-                    text = "Total: ${actividades.size} actividades",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
 
-                Text(
-                    text = "Promedio de progreso: ${
-                        "%.1f".format(promedioProgreso(actividades))
-                    }%",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
 
-                // =================================================
-                // FASE 10 - ADAPTACIÓN A PANTALLA ANCHA
-                // =================================================
+                        Text(
+                            text = "No se encontraron actividades",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+
+                        Text(
+                            text = "Prueba con otro título."
+                        )
+
+                        Button(
+                            onClick = {
+                                textoBusqueda = ""
+                            }
+                        ) {
+                            Text("Mostrar todas")
+                        }
+                    }
+                }
+
+            } else {
 
                 BoxWithConstraints(
                     modifier = Modifier
@@ -115,20 +175,15 @@ fun PantallaActividades(
                         .weight(1f)
                 ) {
 
-                    // =============================================
-                    // PANTALLA ESTRECHA
-                    // Menor a 600.dp → LazyColumn
-                    // =============================================
-
                     if (maxWidth < 600.dp) {
 
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
 
                             items(
-                                items = actividades,
+                                items = actividadesFiltradas,
                                 key = { it.id }
                             ) { actividad ->
 
@@ -141,11 +196,6 @@ fun PantallaActividades(
 
                     } else {
 
-                        // =============================================
-                        // PANTALLA ANCHA
-                        // 600.dp o más → LazyVerticalGrid
-                        // =============================================
-
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(
                                 minSize = 280.dp
@@ -156,7 +206,7 @@ fun PantallaActividades(
                         ) {
 
                             items(
-                                items = actividades,
+                                items = actividadesFiltradas,
                                 key = { it.id }
                             ) { actividad ->
 
@@ -173,229 +223,42 @@ fun PantallaActividades(
     }
 }
 
-
-// =========================================================
-// ESTADO VACÍO
-// =========================================================
-
-@Composable
-private fun EstadoVacio(
-    modifier: Modifier = Modifier
-) {
-
-    Box(
-        modifier = modifier.padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            Text(
-                text = "No hay actividades",
-                style = MaterialTheme.typography.headlineSmall
-            )
-
-            Text(
-                text = "Todavía no tienes actividades formativas registradas."
-            )
-
-            Button(
-                onClick = { }
-            ) {
-
-                Text(
-                    text = "Volver a intentar"
-                )
-            }
-        }
-    }
-}
-
-
-// =========================================================
-// FASE 9 - PREVIEW NORMAL
-// =========================================================
-
 @Preview(
-    name = "Normal",
+    name = "Pantalla actividades",
     showBackground = true,
     showSystemUi = true
 )
 @Composable
-fun PreviewPantallaActividadesNormal() {
+fun PreviewPantallaActividades() {
 
     PantallaActividades(
         actividades = listOf(
 
             ActividadFormativa(
                 id = 1L,
-                titulo = "Desarrollo de aplicaciones móviles",
-                descripcion = "Actividad de Android con Jetpack Compose.",
+                titulo = "Fundamentos de Kotlin",
+                descripcion = "Repasar Kotlin.",
+                progreso = 80,
+                diasRestantes = 2,
+                prioridad = Prioridad.ALTA
+            ),
+
+            ActividadFormativa(
+                id = 2L,
+                titulo = "Jetpack Compose",
+                descripcion = "Construir interfaces.",
                 progreso = 60,
                 diasRestantes = 5,
                 prioridad = Prioridad.MEDIA
             ),
 
             ActividadFormativa(
-                id = 2L,
-                titulo = "Diseño de interfaces",
-                descripcion = "Construcción de interfaces para aplicaciones.",
-                progreso = 80,
-                diasRestantes = 3,
-                prioridad = Prioridad.BAJA
-            ),
-
-            ActividadFormativa(
                 id = 3L,
-                titulo = "Arquitectura de software",
-                descripcion = "Organización y estructura del proyecto.",
-                progreso = 35,
-                diasRestantes = 10,
-                prioridad = Prioridad.ALTA
-            )
-        )
-    )
-}
-
-
-// =========================================================
-// FASE 9 - PREVIEW TÍTULO LARGO
-// =========================================================
-
-@Preview(
-    name = "Título largo",
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-fun PreviewPantallaActividadesTituloLargo() {
-
-    PantallaActividades(
-        actividades = listOf(
-
-            ActividadFormativa(
-                id = 4L,
-                titulo = "Desarrollo de aplicaciones móviles utilizando Jetpack Compose y arquitectura moderna para proyectos de software",
-                descripcion = "Esta actividad permite comprobar el comportamiento de la interfaz cuando el título tiene una longitud considerable.",
-                progreso = 50,
-                diasRestantes = 7,
-                prioridad = Prioridad.ALTA
-            )
-        )
-    )
-}
-
-
-// =========================================================
-// FASE 9 - PREVIEW PROGRESO LÍMITE
-// =========================================================
-
-@Preview(
-    name = "Progreso límite",
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-fun PreviewPantallaActividadesProgresoLimite() {
-
-    PantallaActividades(
-        actividades = listOf(
-
-            // Progreso mínimo
-            ActividadFormativa(
-                id = 5L,
-                titulo = "Actividad sin iniciar",
-                descripcion = "Actividad con progreso mínimo.",
-                progreso = 0,
-                diasRestantes = 15,
+                titulo = "Diseño adaptable",
+                descripcion = "Adaptar la interfaz.",
+                progreso = 30,
+                diasRestantes = 8,
                 prioridad = Prioridad.BAJA
-            ),
-
-            // Progreso máximo
-            ActividadFormativa(
-                id = 6L,
-                titulo = "Actividad completada",
-                descripcion = "Actividad con progreso máximo.",
-                progreso = 100,
-                diasRestantes = 0,
-                prioridad = Prioridad.ALTA
-            )
-        )
-    )
-}
-
-
-// =========================================================
-// FASE 9 - PREVIEW ESTADO VACÍO
-// =========================================================
-
-@Preview(
-    name = "Estado vacío",
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-fun PreviewPantallaActividadesEstadoVacio() {
-
-    PantallaActividades(
-        actividades = emptyList()
-    )
-}
-
-
-// =========================================================
-// FASE 10 - PREVIEW ANCHO AMPLIADO
-// =========================================================
-
-@Preview(
-    name = "Ancho ampliado",
-    widthDp = 800,
-    heightDp = 600,
-    showBackground = true
-)
-@Composable
-fun PreviewPantallaActividadesAnchoAmpliado() {
-
-    PantallaActividades(
-        actividades = listOf(
-
-            ActividadFormativa(
-                id = 7L,
-                titulo = "Actividad 1",
-                descripcion = "Actividad de prueba.",
-                progreso = 20,
-                diasRestantes = 10,
-                prioridad = Prioridad.BAJA
-            ),
-
-            ActividadFormativa(
-                id = 8L,
-                titulo = "Actividad 2",
-                descripcion = "Actividad de prueba.",
-                progreso = 45,
-                diasRestantes = 7,
-                prioridad = Prioridad.MEDIA
-            ),
-
-            ActividadFormativa(
-                id = 9L,
-                titulo = "Actividad 3",
-                descripcion = "Actividad de prueba.",
-                progreso = 70,
-                diasRestantes = 5,
-                prioridad = Prioridad.ALTA
-            ),
-
-            ActividadFormativa(
-                id = 10L,
-                titulo = "Actividad 4",
-                descripcion = "Actividad de prueba.",
-                progreso = 100,
-                diasRestantes = 0,
-                prioridad = Prioridad.ALTA
             )
         )
     )

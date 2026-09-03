@@ -25,7 +25,6 @@ fun TarjetaActividad(
     onActividadClick: (ActividadFormativa) -> Unit = {}
 ) {
 
-    // Calcula el estado utilizando la lógica del dominio
     val estado = estadoActividad(actividad)
 
     val textoEstado = when (estado) {
@@ -62,13 +61,11 @@ fun TarjetaActividad(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            // Título
             Text(
                 text = actividad.titulo,
                 style = MaterialTheme.typography.titleMedium
             )
 
-            // Descripción
             actividad.descripcion?.let { descripcion ->
 
                 Text(
@@ -77,7 +74,6 @@ fun TarjetaActividad(
                 )
             }
 
-            // Estado y prioridad
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -94,19 +90,18 @@ fun TarjetaActividad(
                 )
             }
 
-            // Porcentaje de progreso
             Text(
                 text = "Progreso: ${actividad.progreso}%",
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            // Barra de progreso
             LinearProgressIndicator(
-                progress = { actividad.progreso / 100f },
+                progress = {
+                    actividad.progreso.coerceIn(0, 100) / 100f
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Días restantes
             Text(
                 text = when {
                     actividad.diasRestantes < 0 ->
@@ -114,6 +109,9 @@ fun TarjetaActividad(
 
                     actividad.diasRestantes == 0 ->
                         "Vence hoy"
+
+                    actividad.diasRestantes == 1 ->
+                        "Falta 1 día"
 
                     else ->
                         "Faltan ${actividad.diasRestantes} días"
