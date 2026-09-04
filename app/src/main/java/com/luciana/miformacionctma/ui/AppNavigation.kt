@@ -88,7 +88,7 @@ fun AppNavigation(
                     descripcionInicial =
                         actividad.descripcion ?: "",
 
-                    fechaInicial = "",
+                    fechaInicial = actividad.fecha,
 
                     prioridadInicial =
                         actividad.prioridad,
