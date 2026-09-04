@@ -83,7 +83,7 @@ fun buscarPorTitulo(
     val busqueda = texto.trim()
 
     if (busqueda.isEmpty()) {
-        return emptyList()
+        return actividades
     }
 
     return actividades.filter {
@@ -165,4 +165,55 @@ Vencidas: $vencidas
 Urgentes: $urgentes
 """.trimIndent()
 
+}
+
+/*
+ * Valida el título del formulario.
+ */
+fun validarTitulo(titulo: String): String? {
+
+    val tituloLimpio = titulo.trim()
+
+    return when {
+        tituloLimpio.isEmpty() ->
+            "El título es obligatorio"
+
+        tituloLimpio.length < 3 ->
+            "El título debe tener mínimo 3 caracteres"
+
+        tituloLimpio.length > 80 ->
+            "El título debe tener máximo 80 caracteres"
+
+        else -> null
+    }
+}
+
+/*
+ * Valida la descripción del formulario.
+ */
+fun validarDescripcion(descripcion: String): String? {
+
+    return if (descripcion.length > 240) {
+        "La descripción debe tener máximo 240 caracteres"
+    } else {
+        null
+    }
+}
+
+/*
+ * Valida el progreso de la actividad.
+ */
+fun validarProgreso(progreso: String): String? {
+
+    val valor = progreso.toIntOrNull()
+
+    return when {
+        valor == null ->
+            "El progreso debe ser un número"
+
+        valor !in 0..100 ->
+            "El progreso debe estar entre 0 y 100"
+
+        else -> null
+    }
 }
