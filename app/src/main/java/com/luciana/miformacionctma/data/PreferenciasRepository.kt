@@ -75,6 +75,10 @@ class PreferenciasRepository(
                 "prioridad",
                 actividad.prioridad.name
             )
+            objeto.put(
+                "fecha",
+                actividad.fecha
+            )
 
             array.put(objeto)
         }
@@ -123,6 +127,11 @@ class PreferenciasRepository(
                             objeto.getString(
                                 "prioridad"
                             )
+                        ),
+                    fecha =
+                        objeto.optString(
+                            "fecha",
+                            ""
                         )
                 )
             )

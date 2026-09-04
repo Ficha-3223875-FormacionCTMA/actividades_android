@@ -34,6 +34,14 @@ import com.luciana.miformacionctma.domain.buscarPorTitulo
 import com.luciana.miformacionctma.domain.promedioProgreso
 import com.luciana.miformacionctma.ui.components.TarjetaActividad
 
+
+/**
+ * HU-01 - Consultar actividades formativas
+ * Issue #2
+ *
+ * Permite al usuario consultar las actividades formativas
+ * registradas en la aplicación.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaActividades(

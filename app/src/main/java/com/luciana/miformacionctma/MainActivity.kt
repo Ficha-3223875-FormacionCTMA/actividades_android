@@ -186,7 +186,8 @@ fun MiFormacionApp() {
                 descripcion = formulario.descripcion,
                 progreso = formulario.progreso.toIntOrNull() ?: 0,
                 diasRestantes = calcularDiasRestantes(formulario.fecha),
-                prioridad = formulario.prioridad
+                prioridad = formulario.prioridad,
+                fecha = formulario.fecha
             )
 
             actividades.add(nuevaActividad)
@@ -212,7 +213,9 @@ fun MiFormacionApp() {
                         descripcion = formulario.descripcion,
                         progreso =
                             formulario.progreso.toIntOrNull() ?: 0,
-                        prioridad = formulario.prioridad
+                        prioridad = formulario.prioridad,
+                        fecha = formulario.fecha,
+                        diasRestantes = calcularDiasRestantes(formulario.fecha)
                     )
 
                 scope.launch {

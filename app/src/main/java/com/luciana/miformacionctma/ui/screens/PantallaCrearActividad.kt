@@ -12,6 +12,14 @@ import com.luciana.miformacionctma.domain.validarTitulo
 import com.luciana.miformacionctma.ui.components.FormularioActividad
 import com.luciana.miformacionctma.ui.state.FormularioActividadUiState
 
+
+/**
+ * HU-02 - Registrar una actividad
+ * Issue #3
+ *
+ * Permite al usuario registrar una nueva actividad
+ * formativa mediante el formulario de registro.
+ */
 @Composable
 fun PantallaCrearActividad(
     onGuardar: (FormularioActividadUiState) -> Unit,

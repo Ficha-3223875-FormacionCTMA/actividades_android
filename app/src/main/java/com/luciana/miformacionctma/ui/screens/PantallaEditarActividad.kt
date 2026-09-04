@@ -12,6 +12,14 @@ import com.luciana.miformacionctma.domain.validarTitulo
 import com.luciana.miformacionctma.ui.components.FormularioActividad
 import com.luciana.miformacionctma.ui.state.FormularioActividadUiState
 
+
+/**
+ * HU-04 - Editar una actividad
+ * Issue #5
+ *
+ * Permite al usuario modificar la información
+ * de una actividad formativa previamente registrada.
+ */
 @Composable
 fun PantallaEditarActividad(
     actividadId: Long,

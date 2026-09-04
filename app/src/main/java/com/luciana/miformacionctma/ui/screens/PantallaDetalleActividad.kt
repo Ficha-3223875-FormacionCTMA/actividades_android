@@ -22,6 +22,14 @@ import androidx.compose.ui.unit.dp
 import com.luciana.miformacionctma.domain.ActividadFormativa
 import com.luciana.miformacionctma.domain.estadoActividad
 
+
+/**
+ * HU-03 - Consultar detalle de actividad
+ * Issue #4
+ *
+ * Permite al usuario consultar la información detallada
+ * de una actividad formativa seleccionada.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaDetalleActividad(
@@ -83,28 +91,45 @@ fun PantallaDetalleActividad(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
+                // TÍTULO
                 Text(
                     text = actividad.titulo,
                     style = MaterialTheme.typography.headlineSmall
                 )
 
+                // DESCRIPCIÓN
                 Text(
                     text = actividad.descripcion
                         ?: "Sin descripción"
                 )
 
+                // PROGRESO
                 Text(
                     text = "Progreso: ${actividad.progreso}%"
                 )
 
+                // DÍAS RESTANTES
                 Text(
                     text = "Días restantes: ${actividad.diasRestantes}"
                 )
 
+                // FECHA DE ENTREGA
+                if (actividad.fecha.isNotBlank()) {
+                    Text(
+                        text = "Fecha de entrega: ${actividad.fecha}"
+                    )
+                } else {
+                    Text(
+                        text = "Fecha de entrega: No definida"
+                    )
+                }
+
+                // PRIORIDAD
                 Text(
                     text = "Prioridad: ${actividad.prioridad.name}"
                 )
 
+                // ESTADO
                 Text(
                     text = "Estado: ${estado.name}"
                 )

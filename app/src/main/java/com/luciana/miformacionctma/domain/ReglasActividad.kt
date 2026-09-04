@@ -83,7 +83,7 @@ fun buscarPorTitulo(
     val busqueda = texto.trim()
 
     if (busqueda.isEmpty()) {
-        return emptyList()
+        return actividades
     }
 
     return actividades.filter {
