@@ -1,46 +1,95 @@
 # Mi Formación CTMA
 
-Aplicación Android desarrollada con Kotlin y Jetpack Compose para organizar actividades, compromisos y evidencias del proceso formativo.
+## Descripción del proyecto
 
-## Alcance de las semanas 1 a 4
+Mi Formación CTMA es una aplicación móvil desarrollada en Android Studio utilizando Kotlin y Jetpack Compose.
 
-- Semana 1: ambiente Android, proyecto Compose, Git, problema, usuarios, historias y criterios de aceptación.
-- Semana 2: Kotlin, tipos, variables, funciones, colecciones, null safety, modelo `ActividadFormativa` y reglas de negocio.
-- Semana 3: UI declarativa con Material 3, tarjetas, `LazyColumn`, `LazyVerticalGrid`, estado vacío, previews, accesibilidad y diseño adaptable.
-- Semana 4: estado observable, state hoisting, `rememberSaveable`, formulario, validaciones, Navigation Compose, creación, detalle y edición.
+La aplicación tiene como propósito ayudar a los aprendices a organizar sus actividades, compromisos y evidencias de formación de una manera sencilla y ordenada.
 
-## Requisitos
+## Problema identificado
 
-- Android Studio compatible con el proyecto.
-- JDK 11.
-- SDK Android 36.
-- Gradle se sincroniza mediante el wrapper incluido.
+Los aprendices pueden tener dificultades para organizar sus actividades, recordar sus compromisos y guardar sus evidencias de formación. Esto puede ocasionar olvidos, desorden y retrasos en la entrega de trabajos.
 
-## Ejecución
+Por esta razón, se propone desarrollar una aplicación móvil que permita consultar actividades, registrar compromisos y organizar evidencias relacionadas con la formación del aprendiz.
 
-1. Abrir esta carpeta raíz en Android Studio.
-2. Esperar Gradle Sync y resolver cualquier descarga solicitada por Android Studio.
-3. Seleccionar un emulador o dispositivo autorizado.
-4. Ejecutar `app`.
+## Objetivo general
 
-## Flujo de la aplicación
+Desarrollar una aplicación móvil que ayude a los aprendices CTMA a organizar sus actividades, compromisos y evidencias de formación.
 
-Lista → Crear → Lista
+## Tipos de usuarios
 
-Lista → Detalle → Editar → Lista
+### 1. Aprendiz
 
-El detalle recibe únicamente el `id` de la actividad y resuelve la información desde la lista en memoria.
+Puede consultar sus actividades, revisar compromisos y organizar sus evidencias de formación.
 
-## Nota de persistencia
+### 2. Instructor
 
-La guía de Semana 4 permite estado local para el laboratorio. El borrador pequeño del formulario usa `rememberSaveable`; la persistencia de negocio con Room corresponde a semanas posteriores.
+Puede orientar las actividades de los aprendices y consultar la información relacionada con sus compromisos y evidencias.
 
-## Evidencias
+## Historias de usuario
 
-La carpeta `docs/` contiene las decisiones, matrices, diagramas y casos de prueba que corresponden a las guías. La carpeta `evidencias/` contiene espacios para las capturas que deben realizarse en Android Studio, emulador/dispositivo y pruebas reales.
+### Historia de usuario 1: Consultar actividades
 
-## Guía integradora: Scrum + pruebas + GitHub
+Como aprendiz, quiero consultar mis actividades de formación, para saber qué trabajos debo realizar.
 
-El proyecto incluye artefactos para aplicar la guía integradora sobre el caso **Mi Formación CTMA** sin reemplazar el proyecto por otro dominio. Consulta `docs/checklist-guia-integrada.md`, `docs/historias-usuario-github.md`, `docs/plan-pruebas-v1-integrador.md` y `docs/matriz-trazabilidad-integrador.md`.
+**Criterios de aceptación:**
 
-Las historias deben crearse como Issues en el repositorio GitHub del aprendiz y relacionarse con PR/commits. El repositorio incluye plantillas de Issues y Pull Request y un workflow de GitHub Actions para build, pruebas unitarias y lint.
+- El aprendiz puede visualizar sus actividades.
+- Cada actividad muestra un título y una descripción.
+- La información se presenta de forma clara y ordenada.
+
+### Historia de usuario 2: Registrar compromisos
+
+Como aprendiz, quiero registrar mis compromisos, para recordar las actividades que debo realizar.
+
+**Criterios de aceptación:**
+
+- El aprendiz puede escribir un compromiso.
+- El compromiso puede mostrar una fecha o descripción.
+- La información se presenta en una tarjeta o sección visible.
+
+### Historia de usuario 3: Organizar evidencias
+
+Como aprendiz, quiero organizar mis evidencias de formación, para tener un mejor control de mis trabajos.
+
+**Criterios de aceptación:**
+
+- El aprendiz puede consultar sus evidencias.
+- Las evidencias se muestran de manera organizada.
+- La información debe ser fácil de consultar.
+
+## Tecnologías utilizadas
+
+- Kotlin
+- Android Studio
+- Jetpack Compose
+- Material Design
+- Gradle
+- Git y GitHub
+
+## Funcionalidades iniciales
+
+- Pantalla principal de bienvenida.
+- Título “Mi Formación CTMA”.
+- Mensaje de bienvenida al aprendiz.
+- Información sobre actividades y evidencias.
+- Tarjeta para mostrar el próximo compromiso.
+- Diseño realizado con Jetpack Compose.
+
+## Estructura inicial del proyecto
+
+```text
+MiFormacionCTMA/
+│
+├── app/
+│   └── src/
+│       └── main/
+│           ├── java/
+│           │   └── com.example.miformacionctma/
+│           │       └── MainActivity.kt
+│           │
+│           └── AndroidManifest.xml
+│
+├── build.gradle.kts
+├── settings.gradle.kts
+└── README.md
