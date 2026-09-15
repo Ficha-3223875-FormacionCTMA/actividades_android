@@ -1,12 +1,17 @@
 package com.example.miformacionctma.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -14,13 +19,6 @@ import com.example.miformacionctma.domain.ActividadFormativa
 import com.example.miformacionctma.domain.Prioridad
 import com.example.miformacionctma.ui.components.EncabezadoFormacion
 import com.example.miformacionctma.ui.components.TarjetaActividad
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun PantallaActividades() {
@@ -121,49 +119,27 @@ fun PantallaActividades() {
                 resumen = "Consulta tus actividades formativas."
             )
 
-            BoxWithConstraints(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            if (actividades.isEmpty()) {
 
-                if (actividades.isEmpty()) {
+                Text(
+                    text = "No hay actividades registradas.",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
 
-                    Text(
-                        text = "No hay actividades registradas.",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+            } else {
 
-                } else if (maxWidth < 600.dp) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(
+                        items = actividades,
+                        key = { it.id }
+                    ) { actividad ->
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(
-                            items = actividades,
-                            key = { it.id }
-                        ) { actividad ->
-
-                            TarjetaActividad(
-                                actividad = actividad
-                            )
-                        }
-                    }
-
-                } else {
-
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(
-                            items = actividades,
-                            key = { it.id }
-                        ) { actividad ->
-
-                            TarjetaActividad(
-                                actividad = actividad
-                            )
-                        }
+                        TarjetaActividad(
+                            actividad = actividad
+                        )
                     }
                 }
             }
