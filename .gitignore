@@ -9,3 +9,24 @@
 .cxx
 *.apk
 *.aab
+# Android Studio
+.gradle/
+.idea/
+local.properties
+
+# Archivos de compilación
+build/
+*/build/
+
+# Archivos generados
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Archivos de errores
+*.log
+hs_err_pid*
+replay_pid*
+
+# Archivos temporales
+.DS_Store
