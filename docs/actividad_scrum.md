@@ -1,276 +1,261 @@
 # ACTIVIDAD DE SCRUM
 
-## PROYECTO ENTREGASEGURA
+## PROYECTO MI FORMACIÓN CTMA
 
-### Diagnóstico de aprendizajes previos y organización del Sprint
-
-**Programa:** Análisis y Desarrollo de Software (ADSO)
-
-**Ficha:** 3223875
-
-**Aprendiz:** Alejandra Herrera
-
-**Instructor:** wilson castro gil
-
-**Centro de formación:** CTMA – SENA
-
-**Fecha:** 14 de septiembre de 2026
+**Programa:** Análisis y Desarrollo de Software (ADSO)  
+**Ficha:** 3223875  
+**Aprendiz:** Alejandra Herrera  
+**Instructor:** Wilson Castro Gil  
+**Centro:** CTMA – SENA  
+**Fecha:** 15 de septiembre de 2026
 
 ---
 
-# INTRODUCCIÓN
+# 1. Contexto del proyecto
 
-El presente documento tiene como finalidad analizar y organizar las necesidades del proyecto EntregaSegura mediante la metodología ágil Scrum.
+## 1.1 Nombre del proyecto
 
-EntregaSegura es un sistema orientado a la gestión de entregas de medicamentos a pacientes. El proyecto contempla diferentes funcionalidades, como el registro de pacientes, el inicio de sesión, la creación de órdenes de entrega, la asignación de mensajeros y el seguimiento de los estados de las órdenes.
+**Mi Formación CTMA**
 
-A partir de las necesidades expresadas en las tarjetas del diagnóstico, se construye un Product Backlog ordenado por prioridad. Posteriormente, se seleccionan tres historias de usuario para conformar un Sprint, se establece un objetivo de trabajo y se definen las actividades necesarias para su desarrollo.
+## 1.2 Descripción del proyecto
 
-Finalmente, se establece una Definition of Done, que permite determinar las condiciones de calidad y cumplimiento que deben tener las funcionalidades para considerarse terminadas.
+Mi Formación CTMA es una aplicación móvil Android desarrollada con Android Studio, Kotlin y Jetpack Compose. Su propósito es permitir que los aprendices SENA consulten de manera organizada información relacionada con su formación, actividades y compromisos.
 
-# 1. OBJETIVOS
+La aplicación busca ofrecer una interfaz sencilla, clara y fácil de utilizar, que permita al aprendiz encontrar la información de su proceso formativo de manera organizada.
 
-## 1.1 Objetivo general
+## 1.3 Situación problema
 
-Organizar las necesidades del proyecto EntregaSegura mediante Scrum, construyendo un Product Backlog, historias de usuario, Sprint Goal, Sprint Backlog y Definition of Done.
+Los aprendices suelen administrar actividades, enlaces, evidencias y fechas en diferentes canales. Esto puede producir olvidos, duplicación de información y poca trazabilidad.
 
-## 1.2 Objetivos específicos
+Por esta razón, se plantea desarrollar Mi Formación CTMA como una aplicación Android que evolucione progresivamente durante las diferentes semanas del proyecto.
 
-* Identificar y ordenar las necesidades principales del sistema EntregaSegura.
-* Formular tres historias de usuario con sus respectivos criterios de aceptación.
-* Definir un objetivo para el Sprint.
-* Organizar las tareas necesarias para desarrollar las historias seleccionadas.
-* Establecer condiciones de calidad para considerar terminado el trabajo.
+## 1.4 Objetivo
 
-# 2. DESCRIPCIÓN DEL CASO ENTREGASEGURA
+Desarrollar una aplicación móvil Android que permita al aprendiz consultar información relacionada con su formación CTMA, actividades formativas y próximos compromisos mediante una interfaz sencilla, clara y organizada.
 
-EntregaSegura es un sistema para organizar la operación de entrega de medicamentos a pacientes.
+## 1.5 Usuarios
 
-El sistema contempla diferentes actores:
+| Usuario | Necesidad |
+|---|---|
+| Aprendiz | Consultar compromisos y registrar avance. |
+| Instructor | Comunicar actividades y criterios. |
+| Equipo de desarrollo | Evolucionar una base sin romperla. |
 
-| Actor               | Necesidad                                                      |
-| ------------------- | -------------------------------------------------------------- |
-| Administrador       | Crear, activar, desactivar usuarios y asignar roles.           |
-| Coordinador         | Registrar pacientes, crear órdenes y organizar las entregas.   |
-| Mensajero           | Consultar órdenes asignadas y registrar evidencias de entrega. |
-| Usuario de consulta | Consultar información permitida según sus permisos.            |
+## 1.6 Valor esperado
 
-El proyecto debe tener en cuenta la seguridad de la información personal, los permisos de los usuarios y el registro de los cambios realizados en las órdenes.
+| Usuario | Valor esperado |
+|---|---|
+| Aprendiz | Organización y visibilidad. |
+| Instructor | Trazabilidad formativa. |
+| Equipo de desarrollo | Calidad y colaboración. |
 
-# 3. PRODUCT BACKLOG
+## 1.7 Product Goal
 
-## 3.1 Definición
-
-El Product Backlog es una lista ordenada de las necesidades y funcionalidades que se desean construir para el proyecto EntregaSegura.
-
-Las prioridades presentadas a continuación son una propuesta del equipo para organizar el trabajo inicial. La guía proporciona las necesidades, pero no establece un orden obligatorio de prioridad.
-
-## 3.2 Tabla del Product Backlog
-
-| ID    | Historia o necesidad           | Descripción                                                                             | Prioridad |
-| ----- | ------------------------------ | --------------------------------------------------------------------------------------- | --------- |
-| ES-02 | Iniciar sesión                 | Permitir el acceso de usuarios autorizados con correo o nombre de usuario y contraseña. | 1         |
-| ES-01 | Registrar paciente             | Registrar la información de un paciente antes de crear una orden.                       | 2         |
-| ES-03 | Crear orden de entrega         | Registrar una orden asociada a un paciente existente.                                   | 3         |
-| ES-04 | Asignar mensajero              | Asignar una orden a un mensajero disponible.                                            | 4         |
-| ES-05 | Consultar órdenes pendientes   | Consultar las entregas pendientes con filtros.                                          | 5         |
-| ES-06 | Cambiar estado de una orden    | Actualizar el estado de una orden durante el proceso de entrega.                        | 6         |
-| ES-07 | Adjuntar evidencia fotográfica | Adjuntar una fotografía como evidencia de la entrega.                                   | 7         |
-| ES-08 | Registrar firma del paciente   | Capturar la firma del paciente o persona autorizada.                                    | 8         |
-| ES-14 | Registrar entrega fallida      | Registrar el motivo y observaciones de una entrega no completada.                       | 9         |
-| ES-09 | Consultar historial de cambios | Consultar lo ocurrido con una orden desde su creación hasta su cierre.                  | 10        |
-| ES-10 | Recuperar contraseña           | Permitir recuperar el acceso mediante un correo registrado.                             | 11        |
-| ES-13 | Administrar usuarios y roles   | Crear, activar, desactivar y asignar responsabilidades.                                 | 12        |
-| ES-11 | Exportar reporte               | Descargar información de las entregas en Excel o PDF.                                   | 13        |
-| ES-12 | Notificar al paciente          | Informar al paciente sobre el estado de su medicamento.                                 | 14        |
-| ES-15 | Consultar indicadores          | Visualizar indicadores del desempeño de las entregas.                                   | 15        |
-
-## 3.3 Justificación de la priorización
-
-Se priorizaron inicialmente las funcionalidades de inicio de sesión, registro de pacientes y creación de órdenes porque permiten establecer una base para organizar las entregas de medicamentos.
-
-Posteriormente, se incluyen las funcionalidades relacionadas con la asignación de mensajeros, consulta de órdenes, seguimiento y evidencias. Finalmente, se dejan para etapas posteriores los reportes, las notificaciones y los indicadores.
-
-Esta priorización es una propuesta académica del equipo y puede cambiar según las necesidades del negocio.
-
-# 4. HISTORIAS DE USUARIO
-
-## 4.1 Historia de usuario ES-02 — Iniciar sesión
-
-**ID:** ES-02
-
-**Prioridad:** 1
-
-**Título:** Iniciar sesión
-
-### Historia
-
-Como usuario autorizado, quiero ingresar a EntregaSegura con mi correo o nombre de usuario y contraseña, para acceder únicamente a las funciones que me corresponden.
-
-### Criterios de aceptación
-
-1. Si las credenciales son correctas, el usuario puede ingresar al sistema.
-2. Si las credenciales son incorrectas, el sistema muestra un mensaje general de error.
-3. Si el usuario está inactivo, no puede acceder.
-4. El sistema debe respetar los permisos correspondientes al rol del usuario.
-
-### Resultado esperado
-
-El usuario autorizado puede ingresar al sistema y acceder únicamente a las funciones permitidas.
+> Facilitar al aprendiz la consulta organizada de información de su formación CTMA, actividades y compromisos mediante una aplicación móvil.
 
 ---
 
-## 4.2 Historia de usuario ES-01 — Registrar paciente
+# 2. Product Backlog
 
-**ID:** ES-01
+El Product Backlog reúne las necesidades y funcionalidades identificadas para **Mi Formación CTMA**. Los elementos se organizan por prioridad para orientar el desarrollo del producto.
 
-**Prioridad:** 2
+| ID | Necesidad / Funcionalidad | Prioridad |
+|---|---|---|
+| PB-01 | Mostrar nombre y propósito de la aplicación | Alta |
+| PB-02 | Mostrar información de formación CTMA | Alta |
+| PB-03 | Mostrar actividades formativas | Alta |
+| PB-04 | Mostrar próximo compromiso | Alta |
+| PB-05 | Organizar información mediante tarjetas | Media |
+| PB-06 | Consultar diferentes contenidos de formación | Media |
+| PB-07 | Mejorar el diseño visual | Media |
+| PB-08 | Realizar pruebas de funcionamiento | Alta |
+| PB-09 | Documentar el proyecto y las evidencias | Alta |
 
-**Título:** Registrar paciente
+## 2.1 Priorización del Product Backlog
 
-### Historia
+Los elementos **PB-01, PB-02, PB-03 y PB-04** tienen prioridad alta porque representan las funcionalidades principales relacionadas con la consulta de información, actividades y compromisos del aprendiz.
 
-Como personal administrativo, quiero registrar los datos de un paciente, para tenerlo disponible antes de crear una orden de entrega de medicamentos.
+Los elementos **PB-05, PB-06 y PB-07** tienen prioridad media porque complementan la organización, consulta y presentación de la aplicación.
 
-### Criterios de aceptación
-
-1. El sistema permite registrar tipo y número de documento, nombres, teléfono, dirección, municipio y contacto autorizado.
-2. No se permite registrar dos pacientes con el mismo tipo y número de documento.
-3. La información personal solo está disponible para usuarios autorizados.
-4. El paciente queda registrado correctamente para utilizarlo en una orden de entrega.
-
-### Resultado esperado
-
-El personal administrativo puede registrar un paciente sin duplicar su documento y la información queda disponible para la operación autorizada.
+Los elementos **PB-08 y PB-09** tienen prioridad alta porque permiten verificar el funcionamiento del producto y mantener documentado el proceso de desarrollo y sus evidencias.
 
 ---
 
-## 4.3 Historia de usuario ES-03 — Crear orden de entrega
+# 3. Historias de Usuario
 
-**ID:** ES-03
+## HU-01 – Consultar información de formación
 
-**Prioridad:** 3
+**Como** aprendiz SENA,  
+**quiero** consultar información sobre mi formación CTMA,  
+**para** conocer contenidos importantes de mi proceso formativo.
 
-**Título:** Crear orden de entrega
+### Criterio de aceptación
 
-### Historia
+- **CA-01:** La aplicación debe mostrar el título **"Mi Formación CTMA"**.
 
-Como coordinador, quiero registrar una orden de entrega asociada a un paciente existente, para organizar la entrega de los medicamentos al paciente correcto.
+---
 
-### Criterios de aceptación
+## HU-02 – Consultar actividades formativas
 
-1. La orden solo puede asociarse a un paciente existente.
-2. La orden debe incluir dirección, ventana de entrega, observaciones y medicamentos o paquetes a entregar.
-3. Toda orden nueva inicia en el estado definido por el negocio.
-4. El sistema no permite crear una orden sin paciente asociado.
+**Como** aprendiz SENA,  
+**quiero** visualizar las actividades formativas,  
+**para** conocer las tareas y contenidos que debo revisar.
 
-### Resultado esperado
+### Criterio de aceptación
 
-El coordinador puede crear una orden completa y asociarla correctamente a un paciente existente.
+- **CA-05:** La aplicación debe mostrar una sección destinada a las actividades formativas.
 
-# 5. SPRINT GOAL
+---
 
-## Objetivo del Sprint
+## HU-03 – Consultar próximo compromiso
 
-"Crear una base funcional para que los usuarios autorizados puedan ingresar a EntregaSegura, registrar pacientes y crear órdenes de entrega de medicamentos."
+**Como** aprendiz SENA,  
+**quiero** consultar mi próximo compromiso,  
+**para** recordar qué actividad debo realizar.
 
-## Justificación
+### Criterio de aceptación
 
-Este objetivo permite iniciar el desarrollo del sistema con funcionalidades fundamentales para la operación de EntregaSegura.
+- **CA-09:** La aplicación debe mostrar una tarjeta correspondiente al próximo compromiso.
 
-El Sprint busca obtener una base que permita controlar el acceso, registrar pacientes y crear órdenes de entrega, dejando las demás funcionalidades para futuros incrementos.
+---
 
-# 6. SPRINT BACKLOG
+# 4. Criterios de aceptación ampliados
 
-## 6.1 Definición
+Los criterios definidos inicialmente en esta etapa se amplían posteriormente para permitir pruebas más detalladas del producto.
 
-El Sprint Backlog está compuesto por las historias de usuario seleccionadas para el Sprint y las tareas necesarias para cumplir el Sprint Goal.
+## HU-01 – Consultar información de formación
 
-## 6.2 Sprint 1
+| ID | Criterio |
+|---|---|
+| CA-01 | Mostrar título "Mi Formación CTMA". |
+| CA-02 | Mostrar información relacionada con la formación. |
+| CA-03 | La información debe ser clara y fácil de leer. |
+| CA-04 | La pantalla debe funcionar correctamente al abrir. |
 
-### Historia ES-02 — Iniciar sesión
+## HU-02 – Consultar actividades formativas
 
-| No. | Tarea                                              |
-| --- | -------------------------------------------------- |
-| 1   | Diseñar la pantalla de inicio de sesión.           |
-| 2   | Crear los campos de usuario y contraseña.          |
-| 3   | Validar las credenciales.                          |
-| 4   | Mostrar mensajes de error.                         |
-| 5   | Validar el acceso de usuarios activos e inactivos. |
-| 6   | Realizar pruebas funcionales.                      |
+| ID | Criterio |
+|---|---|
+| CA-05 | Mostrar sección de actividades. |
+| CA-06 | Cada actividad debe tener nombre o descripción. |
+| CA-07 | Las actividades deben estar organizadas. |
+| CA-08 | La información no debe aparecer cortada ni superpuesta. |
 
-### Historia ES-01 — Registrar paciente
+## HU-03 – Consultar próximo compromiso
 
-| No. | Tarea                                         |
-| --- | --------------------------------------------- |
-| 1   | Diseñar el formulario de registro.            |
-| 2   | Crear los campos de información del paciente. |
-| 3   | Validar el tipo y número de documento.        |
-| 4   | Evitar documentos duplicados.                 |
-| 5   | Guardar la información del paciente.          |
-| 6   | Verificar los permisos de acceso.             |
-| 7   | Realizar pruebas funcionales.                 |
+| ID | Criterio |
+|---|---|
+| CA-09 | Mostrar tarjeta del próximo compromiso. |
+| CA-10 | La tarjeta debe incluir información entendible. |
+| CA-11 | El botón o elemento relacionado debe responder correctamente. |
+| CA-12 | La interfaz debe conservar una presentación organizada. |
 
-### Historia ES-03 — Crear orden de entrega
+---
 
-| No. | Tarea                                            |
-| --- | ------------------------------------------------ |
-| 1   | Diseñar el formulario de creación de órdenes.    |
-| 2   | Permitir seleccionar un paciente existente.      |
-| 3   | Agregar dirección y ventana de entrega.          |
-| 4   | Agregar observaciones y medicamentos o paquetes. |
-| 5   | Asignar el estado inicial de la orden.           |
-| 6   | Validar que la orden tenga paciente asociado.    |
-| 7   | Realizar pruebas funcionales.                    |
+# 5. Sprint Goal
 
-## 6.3 Resultado esperado del Sprint
+> Desarrollar y organizar la pantalla principal de Mi Formación CTMA con información de formación, actividades y tarjeta de próximo compromiso.
 
-Al finalizar el Sprint se espera contar con una base funcional que permita:
+El objetivo del Sprint es construir una primera versión funcional de la aplicación que permita al aprendiz visualizar información importante de su proceso formativo de manera clara y organizada.
 
-* Iniciar sesión con un usuario autorizado.
-* Registrar pacientes.
-* Crear órdenes de entrega asociadas a pacientes existentes.
-* Verificar que las funcionalidades cumplan sus criterios de aceptación.
+---
 
-# 7. DEFINITION OF DONE
+# 6. Sprint Backlog
 
-## 7.1 Definición
+| ID | Tarea | Estado |
+|---|---|---|
+| SB-01 | Crear y configurar el proyecto Android | Realizada |
+| SB-02 | Configurar Kotlin y Jetpack Compose | Realizada |
+| SB-03 | Crear la pantalla principal | Realizada |
+| SB-04 | Agregar el título de la aplicación | Realizada |
+| SB-05 | Agregar información de formación | Realizada |
+| SB-06 | Crear tarjeta de próximo compromiso | Realizada |
+| SB-07 | Crear clases para las actividades | Realizada |
+| SB-08 | Organizar los archivos del proyecto | Realizada |
+| SB-09 | Ejecutar y probar la aplicación | En verificación |
+| SB-10 | Crear evidencias y documentación | Realizada |
+| SB-11 | Subir los cambios al repositorio GitHub | Pendiente de confirmar |
 
-La Definition of Done es el conjunto de condiciones que debe cumplir una historia de usuario para considerarse terminada.
+---
 
-## 7.2 Condiciones de terminado
+# 7. Definition of Done
 
-Una historia de usuario se considera terminada cuando:
+Una tarea se considera terminada cuando cumple con las siguientes condiciones:
 
-1. El desarrollo de la funcionalidad está completo.
-2. La funcionalidad cumple los criterios de aceptación definidos.
-3. Se realizaron pruebas funcionales.
-4. Se revisaron y corrigieron los errores encontrados.
-5. Se verificaron los permisos de acceso cuando corresponda.
-6. Se protegió la información sensible según las reglas del sistema.
-7. El código fue revisado por otro integrante del equipo, cuando aplique.
-8. La funcionalidad está documentada.
-9. Se puede demostrar el funcionamiento de la historia.
-10. El equipo considera que la historia cumple con los criterios establecidos.
+- El código está implementado correctamente.
+- La funcionalidad cumple con los criterios de aceptación.
+- El proyecto compila correctamente.
+- La funcionalidad puede ejecutarse en Android.
+- La interfaz presenta la información de manera organizada.
+- Se realizan pruebas en Android Studio.
+- No existen errores que impidan la ejecución de la aplicación.
+- Los archivos se encuentran organizados dentro del proyecto.
+- Se cuenta con las evidencias correspondientes.
+- Los cambios importantes se registran mediante Git.
+- El proyecto se encuentra respaldado en GitHub.
 
-## 7.3 Importancia de la Definition of Done
+---
 
-La Definition of Done permite que todos los integrantes del equipo tengan claridad sobre cuándo una tarea está realmente terminada.
+# 8. Roles Scrum
 
-También ayuda a mantener la calidad del producto, evitar errores y asegurar que las funcionalidades cumplan las necesidades del negocio.
+Para el desarrollo del proyecto se tienen en cuenta los siguientes roles:
 
-# 8. CONCLUSIÓN
+| Rol | Responsabilidad |
+|---|---|
+| Product Owner | Define y prioriza las necesidades del producto. |
+| Scrum Master | Apoya la organización y aplicación de Scrum. |
+| Equipo de desarrollo | Diseña, programa, prueba y documenta la aplicación. |
 
-La actividad permitió organizar las necesidades del proyecto EntregaSegura utilizando la metodología Scrum.
+En el desarrollo académico, una misma persona puede asumir los diferentes roles de acuerdo con las actividades realizadas.
 
-Mediante el Product Backlog se identificaron y priorizaron las funcionalidades principales del sistema. Luego se formularon tres historias de usuario relacionadas con el inicio de sesión, el registro de pacientes y la creación de órdenes de entrega.
+---
 
-El Sprint Goal permitió establecer un objetivo común para el equipo, mientras que el Sprint Backlog organizó las tareas necesarias para desarrollar las historias seleccionadas.
+# 9. Riesgos del proyecto
 
-Finalmente, la Definition of Done estableció las condiciones de calidad que deben cumplirse para considerar terminado el trabajo.
+| ID | Riesgo | Probabilidad | Impacto | Prevención |
+|---|---|---|---|---|
+| R-01 | El proyecto no compila correctamente. | Media | Alto | Revisar errores y realizar Gradle Sync. |
+| R-02 | La interfaz puede quedar desorganizada. | Media | Medio | Probar la aplicación en diferentes tamaños de pantalla. |
+| R-03 | Pérdida de cambios realizados. | Baja | Alto | Guardar los cambios y utilizar Git/GitHub. |
+| R-04 | Una funcionalidad no responde correctamente. | Media | Alto | Realizar pruebas antes de la entrega. |
 
-Scrum facilita la organización, la colaboración y el desarrollo progresivo de un producto, permitiendo entregar funcionalidades de manera ordenada y mejorar continuamente el resultado del proyecto.
+---
 
-# 9. REFERENCIA
+# 10. Plan inicial de pruebas
 
-SENA. *Kit de Tarjetas de Necesidades para el Diagnóstico de Scrum — EntregaSegura*. Programa ADSO. Documento suministrado para la actividad de aprendizaje.
+Para verificar el funcionamiento de **Mi Formación CTMA** se plantean las siguientes pruebas:
+
+| ID | Prueba | Resultado esperado |
+|---|---|---|
+| PR-01 | Abrir la aplicación | La aplicación inicia correctamente. |
+| PR-02 | Verificar el título | Se muestra "Mi Formación CTMA". |
+| PR-03 | Verificar información de formación | La información se muestra correctamente. |
+| PR-04 | Verificar actividades | Las actividades aparecen organizadas. |
+| PR-05 | Verificar tarjeta de compromiso | Se muestra la información del compromiso. |
+| PR-06 | Revisar textos | Los textos no aparecen cortados ni superpuestos. |
+| PR-07 | Probar en emulador o dispositivo | La aplicación mantiene una presentación correcta. |
+| PR-08 | Revisar compilación | El proyecto compila sin errores que impidan su ejecución. |
+| PR-09 | Revisar estructura | Los archivos están organizados en sus respectivos paquetes. |
+
+---
+
+# 11. Evidencias
+
+Como parte de la documentación del proyecto se deben conservar evidencias del desarrollo y las pruebas realizadas.
+
+Las evidencias pueden incluir:
+
+- Captura de la pantalla principal.
+- Captura de la tarjeta de próximo compromiso.
+- Captura de la sección de actividades.
+- Captura de la aplicación ejecutándose en Android Studio.
+- Captura de la estructura de carpetas del proyecto.
+- Captura de las pruebas realizadas.
+- Evidencia de los cambios realizados mediante Git.
+- Evidencia del repositorio GitHub.
+- Archivo de documentación del proyecto.
+
+Las evidencias se organizan dentro de la carpeta:
+
+```text
+Docs/
