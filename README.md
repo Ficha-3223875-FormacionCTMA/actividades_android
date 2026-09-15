@@ -93,3 +93,82 @@ MiFormacionCTMA/
 ├── build.gradle.kts
 ├── settings.gradle.kts
 └── README.md
+
+## Modelo de dominio
+
+La aplicación cuenta con un modelo de dominio para representar las actividades formativas del aprendiz.
+
+### ActividadFormativa
+
+La clase `ActividadFormativa` contiene la información principal de una actividad:
+
+- ID de la actividad.
+- Título.
+- Descripción.
+- Porcentaje de progreso.
+- Días restantes.
+- Prioridad.
+
+### Prioridades
+
+Las actividades pueden tener tres niveles de prioridad:
+
+- BAJA
+- MEDIA
+- ALTA
+
+## Reglas de negocio
+
+Se implementaron funciones para manejar las reglas principales de las actividades formativas:
+
+- Validar que el título de una actividad no esté vacío.
+- Validar que el progreso esté entre 0 y 100.
+- Determinar el estado de una actividad.
+- Identificar actividades urgentes.
+- Calcular el promedio de progreso.
+- Buscar actividades por título.
+
+### Estados de una actividad
+
+Una actividad puede encontrarse en uno de los siguientes estados:
+
+- PENDIENTE
+- EN_PROCESO
+- COMPLETADA
+- VENCIDA
+
+## Resumen de actividades
+
+La pantalla principal muestra información calculada a partir de las actividades registradas:
+
+- Cantidad de actividades.
+- Promedio de progreso.
+- Cantidad de actividades urgentes.
+
+## Estructura actual del proyecto
+
+```text
+MiFormacionCTMA/
+│
+├── app/
+│   └── src/
+│       └── main/
+│           ├── java/
+│           │   └── com.example.miformacionctma/
+│           │       ├── MainActivity.kt
+│           │       │
+│           │       ├── domain/
+│           │       │   ├── ActividadFormativa.kt
+│           │       │   └── ReglasActividad.kt
+│           │       │
+│           │       └── ui/
+│           │           └── theme/
+│           │               ├── Theme.kt
+│           │               └── Type.kt
+│           │
+│           └── AndroidManifest.xml
+│
+├── docs/
+├── build.gradle.kts
+├── settings.gradle.kts
+└── README.md
