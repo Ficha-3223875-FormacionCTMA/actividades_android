@@ -25,6 +25,7 @@ import com.example.miformacionctma.domain.Prioridad
 import com.example.miformacionctma.domain.actividadesUrgentes
 import com.example.miformacionctma.domain.promedioProgreso
 import com.example.miformacionctma.ui.MiFormacionCTMATheme
+import com.example.miformacionctma.ui.screens.PantallaActividades
 
 class MainActivity : ComponentActivity() {
 
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MiFormacionCTMATheme {
-                PantallaInicio()
+                PantallaActividades()
             }
         }
     }
