@@ -3,12 +3,13 @@ package com.example.miformacionctma
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -18,17 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import com.example.miformacionctma.domain.ActividadFormativa
 import com.example.miformacionctma.domain.Prioridad
 import com.example.miformacionctma.domain.actividadesUrgentes
 import com.example.miformacionctma.domain.promedioProgreso
 import com.example.miformacionctma.ui.MiFormacionCTMATheme
 import com.example.miformacionctma.ui.components.TarjetaActividad
+import com.example.miformacionctma.ui.screens.FormularioActividadScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -46,94 +47,128 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PantallaInicio(nombre: String = "Aprendiz") {
 
-    val actividades = listOf(
-        ActividadFormativa(
-            id = 1L,
-            titulo = "Introducción a Android",
-            descripcion = "Conocer las herramientas básicas de Android Studio.",
-            progreso = 100,
-            diasRestantes = 0,
-            prioridad = Prioridad.ALTA
-        ),
-        ActividadFormativa(
-            id = 2L,
-            titulo = "Jetpack Compose",
-            descripcion = "Crear interfaces utilizando componentes declarativos.",
-            progreso = 80,
-            diasRestantes = 2,
-            prioridad = Prioridad.ALTA
-        ),
-        ActividadFormativa(
-            id = 3L,
-            titulo = "Material 3",
-            descripcion = "Aplicar componentes y estilos de Material Design.",
-            progreso = 70,
-            diasRestantes = 3,
-            prioridad = Prioridad.MEDIA
-        ),
-        ActividadFormativa(
-            id = 4L,
-            titulo = "Layouts en Compose",
-            descripcion = "Trabajar con Column, Row y otros layouts.",
-            progreso = 60,
-            diasRestantes = 4,
-            prioridad = Prioridad.MEDIA
-        ),
-        ActividadFormativa(
-            id = 5L,
-            titulo = "Componentes reutilizables",
-            descripcion = "Crear componentes que puedan utilizarse en diferentes pantallas.",
-            progreso = 50,
-            diasRestantes = 5,
-            prioridad = Prioridad.MEDIA
-        ),
-        ActividadFormativa(
-            id = 6L,
-            titulo = "Accesibilidad",
-            descripcion = "Mejorar la experiencia de usuarios con diferentes necesidades.",
-            progreso = 40,
-            diasRestantes = 6,
-            prioridad = Prioridad.ALTA
-        ),
-        ActividadFormativa(
-            id = 7L,
-            titulo = "Diseño adaptable",
-            descripcion = "Preparar la interfaz para diferentes tamaños de pantalla.",
-            progreso = 30,
-            diasRestantes = 7,
-            prioridad = Prioridad.MEDIA
-        ),
-        ActividadFormativa(
-            id = 8L,
-            titulo = "Previews",
-            descripcion = "Probar los componentes mediante vistas previas.",
-            progreso = 25,
-            diasRestantes = 8,
-            prioridad = Prioridad.BAJA
-        ),
-        ActividadFormativa(
-            id = 9L,
-            titulo = "Listas con LazyColumn",
-            descripcion = "Mostrar varias actividades de manera eficiente.",
-            progreso = 20,
-            diasRestantes = 9,
-            prioridad = Prioridad.MEDIA
-        ),
-        ActividadFormativa(
-            id = 10L,
-            titulo = "Pruebas de interfaz",
-            descripcion = "Verificar el funcionamiento de la aplicación.",
-            progreso = 10,
-            diasRestantes = 10,
-            prioridad = Prioridad.BAJA
+    var actividades by remember {
+        mutableStateOf(
+            listOf(
+                ActividadFormativa(
+                    id = 1L,
+                    titulo = "Introducción a Android",
+                    descripcion = "Conocer las herramientas básicas de Android Studio.",
+                    progreso = 100,
+                    diasRestantes = 0,
+                    prioridad = Prioridad.ALTA
+                ),
+                ActividadFormativa(
+                    id = 2L,
+                    titulo = "Jetpack Compose",
+                    descripcion = "Crear interfaces utilizando componentes declarativos.",
+                    progreso = 80,
+                    diasRestantes = 2,
+                    prioridad = Prioridad.ALTA
+                ),
+                ActividadFormativa(
+                    id = 3L,
+                    titulo = "Material 3",
+                    descripcion = "Aplicar componentes y estilos de Material Design.",
+                    progreso = 70,
+                    diasRestantes = 3,
+                    prioridad = Prioridad.MEDIA
+                ),
+                ActividadFormativa(
+                    id = 4L,
+                    titulo = "Layouts en Compose",
+                    descripcion = "Trabajar con Column, Row y otros layouts.",
+                    progreso = 60,
+                    diasRestantes = 4,
+                    prioridad = Prioridad.MEDIA
+                ),
+                ActividadFormativa(
+                    id = 5L,
+                    titulo = "Componentes reutilizables",
+                    descripcion = "Crear componentes que puedan utilizarse en diferentes pantallas.",
+                    progreso = 50,
+                    diasRestantes = 5,
+                    prioridad = Prioridad.MEDIA
+                ),
+                ActividadFormativa(
+                    id = 6L,
+                    titulo = "Accesibilidad",
+                    descripcion = "Mejorar la experiencia de usuarios con diferentes necesidades.",
+                    progreso = 40,
+                    diasRestantes = 6,
+                    prioridad = Prioridad.ALTA
+                ),
+                ActividadFormativa(
+                    id = 7L,
+                    titulo = "Diseño adaptable",
+                    descripcion = "Preparar la interfaz para diferentes tamaños de pantalla.",
+                    progreso = 30,
+                    diasRestantes = 7,
+                    prioridad = Prioridad.MEDIA
+                ),
+                ActividadFormativa(
+                    id = 8L,
+                    titulo = "Previews",
+                    descripcion = "Probar los componentes mediante vistas previas.",
+                    progreso = 25,
+                    diasRestantes = 8,
+                    prioridad = Prioridad.BAJA
+                ),
+                ActividadFormativa(
+                    id = 9L,
+                    titulo = "Listas con LazyColumn",
+                    descripcion = "Mostrar varias actividades de manera eficiente.",
+                    progreso = 20,
+                    diasRestantes = 9,
+                    prioridad = Prioridad.MEDIA
+                ),
+                ActividadFormativa(
+                    id = 10L,
+                    titulo = "Pruebas de interfaz",
+                    descripcion = "Verificar el funcionamiento de la aplicación.",
+                    progreso = 10,
+                    diasRestantes = 10,
+                    prioridad = Prioridad.BAJA
+                )
+            )
         )
-    )
+    }
 
     val promedio = promedioProgreso(actividades)
     val urgentes = actividadesUrgentes(actividades)
 
     var mostrarCompromiso by remember {
         mutableStateOf(false)
+    }
+
+    var mostrarFormulario by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    if (mostrarFormulario) {
+
+        FormularioActividadScreen(
+            onGuardar = { titulo, descripcion ->
+
+                val nuevaActividad = ActividadFormativa(
+                    id = (actividades.maxOfOrNull { it.id } ?: 0L) + 1L,
+                    titulo = titulo,
+                    descripcion = descripcion,
+                    progreso = 0,
+                    diasRestantes = 0,
+                    prioridad = Prioridad.MEDIA
+                )
+
+                actividades = actividades + nuevaActividad
+
+                mostrarFormulario = false
+            },
+            onCancelar = {
+                mostrarFormulario = false
+            }
+        )
+
+        return
     }
 
     Scaffold { paddingValues ->
@@ -196,6 +231,16 @@ fun PantallaInicio(nombre: String = "Aprendiz") {
                         }
                     ) {
                         Text("Ver próximo compromiso")
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        onClick = {
+                            mostrarFormulario = true
+                        }
+                    ) {
+                        Text("Crear actividad")
                     }
 
                     if (mostrarCompromiso) {
