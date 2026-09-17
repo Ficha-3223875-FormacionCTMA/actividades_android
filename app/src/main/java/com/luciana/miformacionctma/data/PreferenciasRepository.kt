@@ -4,140 +4,35 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.luciana.miformacionctma.domain.ActividadFormativa
-import com.luciana.miformacionctma.domain.Prioridad
-import kotlinx.coroutines.flow.first
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-private val Context.dataStore by preferencesDataStore(
-    name = "actividades"
-)
+private val Context.dataStore by preferencesDataStore(name = "preferencias")
 
 class PreferenciasRepository(
     private val context: Context
 ) {
 
-    private val actividadesKey =
-        stringPreferencesKey("lista_actividades")
+    private val busquedaKey = stringPreferencesKey("busqueda")
+    private val vistaKey = stringPreferencesKey("vista")
 
-    suspend fun cargarActividades():
-            List<ActividadFormativa>? {
-
-        val preferencias =
-            context.dataStore.data.first()
-
-        val json = preferencias[actividadesKey]
-
-        if (json.isNullOrEmpty()) {
-            return null
-        }
-
-        return convertirDesdeJson(json)
+    val busqueda: Flow<String> = context.dataStore.data.map { preferencias ->
+        preferencias[busquedaKey] ?: ""
     }
 
-    suspend fun guardarActividades(
-        actividades: List<ActividadFormativa>
-    ) {
+    val vista: Flow<String> = context.dataStore.data.map { preferencias ->
+        preferencias[vistaKey] ?: "lista"
+    }
 
+    suspend fun guardarBusqueda(texto: String) {
         context.dataStore.edit { preferencias ->
-
-            preferencias[actividadesKey] =
-                convertirAJson(actividades)
+            preferencias[busquedaKey] = texto
         }
     }
 
-    private fun convertirAJson(
-        actividades: List<ActividadFormativa>
-    ): String {
-
-        val array = JSONArray()
-
-        actividades.forEach { actividad ->
-
-            val objeto = JSONObject()
-
-            objeto.put("id", actividad.id)
-            objeto.put("titulo", actividad.titulo)
-            objeto.put(
-                "descripcion",
-                actividad.descripcion ?: ""
-            )
-            objeto.put(
-                "progreso",
-                actividad.progreso
-            )
-            objeto.put(
-                "diasRestantes",
-                actividad.diasRestantes
-            )
-            objeto.put(
-                "prioridad",
-                actividad.prioridad.name
-            )
-            objeto.put(
-                "fecha",
-                actividad.fecha
-            )
-
-            array.put(objeto)
+    suspend fun guardarVista(vista: String) {
+        context.dataStore.edit { preferencias ->
+            preferencias[vistaKey] = vista
         }
-
-        return array.toString()
-    }
-
-    private fun convertirDesdeJson(
-        json: String
-    ): List<ActividadFormativa> {
-
-        val array = JSONArray(json)
-
-        val actividades =
-            mutableListOf<ActividadFormativa>()
-
-        for (i in 0 until array.length()) {
-
-            val objeto =
-                array.getJSONObject(i)
-
-            actividades.add(
-                ActividadFormativa(
-                    id = objeto.getLong("id"),
-
-                    titulo =
-                        objeto.getString("titulo"),
-
-                    descripcion =
-                        objeto.getString(
-                            "descripcion"
-                        ).ifEmpty {
-                            null
-                        },
-
-                    progreso =
-                        objeto.getInt("progreso"),
-
-                    diasRestantes =
-                        objeto.getInt(
-                            "diasRestantes"
-                        ),
-
-                    prioridad =
-                        Prioridad.valueOf(
-                            objeto.getString(
-                                "prioridad"
-                            )
-                        ),
-                    fecha =
-                        objeto.optString(
-                            "fecha",
-                            ""
-                        )
-                )
-            )
-        }
-
-        return actividades
     }
 }
-

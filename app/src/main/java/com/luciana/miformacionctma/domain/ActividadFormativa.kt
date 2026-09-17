@@ -21,5 +21,6 @@ data class ActividadFormativa(
     val progreso: Int,
     val diasRestantes: Int,
     val prioridad: Prioridad,
-    val fecha: String = ""
+    val fecha: String = "",
+    val resuelto: Boolean = false
 )
