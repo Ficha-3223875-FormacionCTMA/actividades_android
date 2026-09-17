@@ -134,6 +134,10 @@ fun PantallaDetalleActividad(
                     text = "Estado: ${estado.name}"
                 )
 
+                Text(
+                    text = "Resuelto: ${if (actividad.resuelto) "Sí" else "No"}"
+                )
+
                 // EDITAR
                 Button(
                     onClick = onEditar
