@@ -1,0 +1,880 @@
+{
+  "info": {
+    "_postman_id": "19f9b165-7e89-4431-9d0b-2edc1547ece2",
+    "name": "EntregaSegura -Semana 4",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58294032",
+    "_collection_link": "https://go.postman.co/collection/58294032-19f9b165-7e89-4431-9d0b-2edc1547ece2?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Actividades",
+      "item": [
+        {
+          "name": "EV-09 Consulta autorizada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La consulta autorizada responde 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene actividades\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.actividades).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-04 Crea de actividad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La actividad se crea con 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene un ID de actividad\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.id).to.match(/^ACT-/);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"titulo\": \"Actividad de prueba Postman\",\r\n  \"descripcion\": \"Actividad creada desde Postman para Mi Formación CTMA\",\r\n  \"aprendiz\": \"APR-01\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-11 Crear actividad autorizada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La creación autorizada responde 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La actividad creada tiene estado PENDIENTE\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.estado).to.eql(\"PENDIENTE\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"titulo\": \"Actividad Semana 4\",\r\n  \"descripcion\": \"Prueba de creación mediante API REST\",\r\n  \"aprendiz\": \"APR-01\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-15 Actividad inexistente con autorizacion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"El recurso inexistente responde 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta indica actividad no encontrada\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.detail).to.eql(\"Actividad no encontrada\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades/ACT-999",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades",
+                "ACT-999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-02 Listar actividades",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La consulta responde 200 OK\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene la lista de actividades\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.actividades).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-03 Actividad inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades/ACT-999",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades",
+                "ACT-999"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Estados",
+      "item": [
+        {
+          "name": "EV-06 Estado invalido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"El estado inválido responde 422\", function () {\r",
+                  "    pm.response.to.have.status(422);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta indica estado no válido\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.detail).to.eql(\"Estado no válido\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"estado\": \"ESTADO_INVENTADO\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades/ACT-003/estado",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades",
+                "ACT-003",
+                "estado"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-12 Actividad completada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La actividad completada responde 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La actividad queda COMPLETADA\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.estado).to.eql(\"COMPLETADA\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"estado\": \"COMPLETADA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades/ACT-003/estado",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades",
+                "ACT-003",
+                "estado"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-13 Transicion de estado no permitida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La transición no permitida responde 409\", function () {\r",
+                  "    pm.response.to.have.status(409);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta indica transición no permitida\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.detail).to.eql(\"Transición de estado no permitida\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"estado\": \"COMPLETADA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades/ACT-003/estado",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades",
+                "ACT-003",
+                "estado"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-05 Cambio estado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"El estado se actualiza con 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La actividad queda EN_PROCESO\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.estado).to.eql(\"EN_PROCESO\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"estado\": \"EN_PROCESO\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades/ACT-002/estado",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades",
+                "ACT-002",
+                "estado"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "EV-14 Login con credenciales incorrectas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"El login incorrecto responde 401\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta indica credenciales inválidas\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.detail).to.eql(\"Credenciales inválidas\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"aprendiz@ctma.test\",\r\n  \"password\": \"PasswordIncorrecta123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-01 Login correcto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"El login responde 200 OK\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene un token\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.token).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "const respuesta = pm.response.json();\r",
+                  "pm.environment.set(\"token\", respuesta.token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"aprendiz@ctma.test\",\r\n  \"password\": \"Demo123*\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Evidencias",
+      "item": [
+        {
+          "name": "EV-08 Tipo de evidencia invalida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"El tipo de archivo inválido responde 422\", function () {\r",
+                  "    pm.response.to.have.status(422);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta indica tipo no permitido\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.detail).to.eql(\"Tipo de archivo no permitido\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombreArchivo\": \"archivo.exe\",\r\n  \"tipoArchivo\": \"application/exe\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades/ACT-003/evidencias",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades",
+                "ACT-003",
+                "evidencias"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EV-07 Registrar evidencia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La evidencia se registra con 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta confirma el registro\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.mensaje).to.eql(\"Evidencia registrada correctamente\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nombreArchivo\": \"EV-05-cambio-estado.png\",\r\n  \"tipoArchivo\": \"image/png\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades/ACT-002/evidencias",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades",
+                "ACT-002",
+                "evidencias"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pruebas negativas",
+      "item": [
+        {
+          "name": "EV-10 Acceso sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"El acceso sin token responde 401\", function () {\r",
+                  "    pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta indica token requerido\", function () {\r",
+                  "    const respuesta = pm.response.json();\r",
+                  "    pm.expect(respuesta.detail).to.eql(\"Token requerido\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "token-APR-01",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/actividades",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "actividades"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
