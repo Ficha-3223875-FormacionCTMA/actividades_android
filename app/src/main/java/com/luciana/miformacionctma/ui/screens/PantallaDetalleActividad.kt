@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.luciana.miformacionctma.domain.ActividadFormativa
 import com.luciana.miformacionctma.domain.estadoActividad
 
-
 /**
  * HU-03 - Consultar detalle de actividad
  * Issue #4
@@ -36,7 +35,8 @@ fun PantallaDetalleActividad(
     actividad: ActividadFormativa?,
     onVolver: () -> Unit,
     onEditar: () -> Unit = {},
-    onEliminar: () -> Unit = {}
+    onEliminar: () -> Unit = {},
+    onCambiarResuelto: () -> Unit = {}
 ) {
 
     var mostrarDialogoEliminar by remember {
@@ -134,9 +134,22 @@ fun PantallaDetalleActividad(
                     text = "Estado: ${estado.name}"
                 )
 
+                // RESUELTO
                 Text(
                     text = "Resuelto: ${if (actividad.resuelto) "Sí" else "No"}"
                 )
+
+                Button(
+                    onClick = onCambiarResuelto
+                ) {
+                    Text(
+                        if (actividad.resuelto) {
+                            "Marcar como pendiente"
+                        } else {
+                            "Marcar como resuelta"
+                        }
+                    )
+                }
 
                 // EDITAR
                 Button(
