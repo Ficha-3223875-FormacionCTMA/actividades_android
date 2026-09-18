@@ -149,8 +149,7 @@ fun FormularioActividadScreen(
                 intentoGuardar = true
 
                 if (nuevoErrorTitulo == null &&
-                    nuevoErrorDescripcion == null &&
-                    estado.puedeGuardar
+                    nuevoErrorDescripcion == null
                 ) {
                     guardando = true
 
