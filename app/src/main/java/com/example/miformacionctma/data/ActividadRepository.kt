@@ -7,10 +7,12 @@ class ActividadRepository {
     suspend fun obtenerActividades(): List<Actividad> {
         return api.obtenerActividades(
             AuthManager.token
-        )
+        ).actividades
     }
 
-    suspend fun crearActividad(actividad: Actividad): Actividad {
+    suspend fun crearActividad(
+        actividad: Actividad
+    ): Actividad {
         return api.crearActividad(
             AuthManager.token,
             actividad

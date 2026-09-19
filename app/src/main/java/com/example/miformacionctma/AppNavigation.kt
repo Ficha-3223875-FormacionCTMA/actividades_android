@@ -1,108 +1,110 @@
 package com.example.miformacionctma
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.miformacionctma.data.Actividad
+import com.example.miformacionctma.data.ActividadRepository
 import com.example.miformacionctma.domain.ActividadFormativa
 import com.example.miformacionctma.domain.Prioridad
 import com.example.miformacionctma.ui.screens.DetalleActividadScreen
 import com.example.miformacionctma.ui.screens.FormularioActividadScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavigation() {
 
     val navController = rememberNavController()
+    val repository = remember { ActividadRepository() }
+    val scope = rememberCoroutineScope()
 
     var actividades by remember {
-        mutableStateOf(
-            listOf(
-                ActividadFormativa(
-                    id = 1L,
-                    titulo = "Introducción a Android",
-                    descripcion = "Conocer las herramientas básicas de Android Studio.",
-                    progreso = 100,
-                    diasRestantes = 0,
-                    prioridad = Prioridad.ALTA
-                ),
-                ActividadFormativa(
-                    id = 2L,
-                    titulo = "Jetpack Compose",
-                    descripcion = "Crear interfaces utilizando componentes declarativos.",
-                    progreso = 80,
-                    diasRestantes = 2,
-                    prioridad = Prioridad.ALTA
-                ),
-                ActividadFormativa(
-                    id = 3L,
-                    titulo = "Material 3",
-                    descripcion = "Aplicar componentes y estilos de Material Design.",
-                    progreso = 70,
-                    diasRestantes = 3,
-                    prioridad = Prioridad.MEDIA
-                ),
-                ActividadFormativa(
-                    id = 4L,
-                    titulo = "Layouts en Compose",
-                    descripcion = "Trabajar con Column, Row y otros layouts.",
-                    progreso = 60,
-                    diasRestantes = 4,
-                    prioridad = Prioridad.MEDIA
-                ),
-                ActividadFormativa(
-                    id = 5L,
-                    titulo = "Componentes reutilizables",
-                    descripcion = "Crear componentes que puedan utilizarse en diferentes pantallas.",
-                    progreso = 50,
-                    diasRestantes = 5,
-                    prioridad = Prioridad.MEDIA
-                ),
-                ActividadFormativa(
-                    id = 6L,
-                    titulo = "Accesibilidad",
-                    descripcion = "Mejorar la experiencia de usuarios con diferentes necesidades.",
-                    progreso = 40,
-                    diasRestantes = 6,
-                    prioridad = Prioridad.ALTA
-                ),
-                ActividadFormativa(
-                    id = 7L,
-                    titulo = "Diseño adaptable",
-                    descripcion = "Preparar la interfaz para diferentes tamaños de pantalla.",
-                    progreso = 30,
-                    diasRestantes = 7,
-                    prioridad = Prioridad.MEDIA
-                ),
-                ActividadFormativa(
-                    id = 8L,
-                    titulo = "Previews",
-                    descripcion = "Probar los componentes mediante vistas previas.",
-                    progreso = 25,
-                    diasRestantes = 8,
-                    prioridad = Prioridad.BAJA
-                ),
-                ActividadFormativa(
-                    id = 9L,
-                    titulo = "Listas con LazyColumn",
-                    descripcion = "Mostrar varias actividades de manera eficiente.",
-                    progreso = 20,
-                    diasRestantes = 9,
-                    prioridad = Prioridad.MEDIA
-                ),
-                ActividadFormativa(
-                    id = 10L,
-                    titulo = "Pruebas de interfaz",
-                    descripcion = "Verificar el funcionamiento de la aplicación.",
-                    progreso = 10,
-                    diasRestantes = 10,
-                    prioridad = Prioridad.BAJA
-                )
-            )
+        mutableStateOf<List<ActividadFormativa>>(emptyList())
+    }
+
+    var cargando by remember {
+        mutableStateOf(true)
+    }
+
+    var error by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    fun convertirActividad(
+        actividad: Actividad
+    ): ActividadFormativa {
+
+        val idNumerico = actividad.id
+            .removePrefix("ACT-")
+            .toLongOrNull()
+            ?: 0L
+
+        val progreso = when (actividad.estado) {
+            "COMPLETADA" -> 100
+            "EN_PROCESO" -> 50
+            else -> 0
+        }
+
+        val prioridad = when (actividad.estado) {
+            "COMPLETADA" -> Prioridad.BAJA
+            "EN_PROCESO" -> Prioridad.MEDIA
+            else -> Prioridad.ALTA
+        }
+
+        return ActividadFormativa(
+            id = idNumerico,
+            titulo = actividad.titulo,
+            descripcion = actividad.descripcion,
+            progreso = progreso,
+            diasRestantes = 0,
+            prioridad = prioridad
         )
+    }
+
+    fun cargarActividades() {
+
+        scope.launch {
+
+            cargando = true
+            error = null
+
+            try {
+
+                val resultado = repository.obtenerActividades()
+
+                actividades = resultado.map {
+                    convertirActividad(it)
+                }
+
+            } catch (e: Exception) {
+
+                error = e.message
+                    ?: "No se pudieron cargar las actividades."
+
+            } finally {
+
+                cargando = false
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        cargarActividades()
     }
 
     NavHost(
@@ -111,34 +113,87 @@ fun AppNavigation() {
     ) {
 
         composable("lista") {
-            PantallaInicio(
-                actividades = actividades,
-                onCrearActividad = {
-                    navController.navigate("crear")
-                },
-                onSeleccionarActividad = { actividadId ->
-                    navController.navigate("detalle/$actividadId")
+
+            when {
+
+                cargando -> {
+
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            )
+
+                error != null -> {
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error al conectar con FastAPI:\n$error"
+                        )
+                    }
+                }
+
+                else -> {
+
+                    PantallaInicio(
+                        actividades = actividades,
+
+                        onCrearActividad = {
+                            navController.navigate("crear")
+                        },
+
+                        onSeleccionarActividad = { actividadId ->
+
+                            navController.navigate(
+                                "detalle/$actividadId"
+                            )
+                        }
+                    )
+                }
+            }
         }
 
         composable("crear") {
 
             FormularioActividadScreen(
+
                 onGuardar = { titulo, descripcion ->
 
-                    val nuevaActividad = ActividadFormativa(
-                        id = (actividades.maxOfOrNull { it.id } ?: 0L) + 1L,
-                        titulo = titulo,
-                        descripcion = descripcion,
-                        progreso = 0,
-                        diasRestantes = 0,
-                        prioridad = Prioridad.MEDIA
-                    )
+                    scope.launch {
 
-                    actividades = actividades + nuevaActividad
+                        try {
 
-                    navController.popBackStack()
+                            error = null
+
+                            val nuevaActividad =
+                                Actividad(
+                                    id = "",
+                                    titulo = titulo,
+                                    descripcion = descripcion,
+                                    aprendiz = "APR-01"
+                                )
+
+                            repository.crearActividad(
+                                nuevaActividad
+                            )
+
+                            cargarActividades()
+
+                            navController.popBackStack()
+
+                        } catch (e: Exception) {
+
+                            error = e.message
+                                ?: "No se pudo crear la actividad."
+                        }
+                    }
                 },
 
                 onCancelar = {
@@ -155,10 +210,13 @@ fun AppNavigation() {
                     ?.toLongOrNull()
 
             val actividad =
-                actividades.find { it.id == actividadId }
+                actividades.find {
+                    it.id == actividadId
+                }
 
             DetalleActividadScreen(
                 actividad = actividad,
+
                 onVolver = {
                     navController.popBackStack()
                 }
