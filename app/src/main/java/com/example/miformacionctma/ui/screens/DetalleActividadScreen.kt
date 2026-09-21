@@ -3,13 +3,17 @@ package com.example.miformacionctma.ui.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.miformacionctma.domain.ActividadFormativa
@@ -17,8 +21,39 @@ import com.example.miformacionctma.domain.ActividadFormativa
 @Composable
 fun DetalleActividadScreen(
     actividad: ActividadFormativa?,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    onActualizar: (String, String) -> Unit = { _, _ -> },
+    onEliminar: () -> Unit = {}
 ) {
+    if (actividad == null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text("La actividad no existe.")
+
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
+
+            Button(onClick = onVolver) {
+                Text("Volver")
+            }
+        }
+
+        return
+    }
+
+    var titulo by remember {
+        mutableStateOf(actividad.titulo)
+    }
+
+    var descripcion by remember {
+        mutableStateOf(
+            actividad.descripcion ?: ""
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -26,63 +61,74 @@ fun DetalleActividadScreen(
             .padding(16.dp)
     ) {
 
-        Text(
-            text = "Detalle de actividad",
-            style = MaterialTheme.typography.headlineMedium
+        Text("Editar actividad")
+
+        Spacer(
+            modifier = Modifier.height(20.dp)
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        OutlinedTextField(
+            value = titulo,
+            onValueChange = {
+                titulo = it
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text("Título")
+            },
+            singleLine = true
+        )
 
-        if (actividad != null) {
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
 
-            Text(
-                text = actividad.titulo,
-                style = MaterialTheme.typography.titleLarge
-            )
+        OutlinedTextField(
+            value = descripcion,
+            onValueChange = {
+                descripcion = it
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text("Descripción")
+            },
+            minLines = 4
+        )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = actividad.descripcion ?: "Sin descripción",
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "Progreso: ${actividad.progreso}%"
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LinearProgressIndicator(
-                progress = { actividad.progreso / 100f }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Días restantes: ${actividad.diasRestantes}"
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Prioridad: ${actividad.prioridad.name.lowercase()}"
-            )
-
-        } else {
-
-            Text(
-                text = "La actividad no existe.",
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
         Button(
-            onClick = onVolver
+            onClick = {
+                onActualizar(
+                    titulo.trim(),
+                    descripcion.trim()
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Guardar cambios")
+        }
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        Button(
+            onClick = onEliminar,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Eliminar actividad")
+        }
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        Button(
+            onClick = onVolver,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Volver")
         }

@@ -7,22 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.miformacionctma.domain.FormularioActividadUiState
 import com.example.miformacionctma.domain.validarDescripcion
 import com.example.miformacionctma.domain.validarTitulo
 
@@ -31,126 +25,128 @@ fun FormularioActividadScreen(
     onGuardar: (String, String) -> Unit,
     onCancelar: () -> Unit
 ) {
-
-    var titulo by rememberSaveable {
+    var titulo by remember {
         mutableStateOf("")
     }
 
-    var descripcion by rememberSaveable {
+    var descripcion by remember {
         mutableStateOf("")
     }
 
-    var errorTitulo by rememberSaveable {
-        mutableStateOf<String?>(null)
-    }
-
-    var errorDescripcion by rememberSaveable {
-        mutableStateOf<String?>(null)
-    }
-
-    var intentoGuardar by rememberSaveable {
+    var intentoGuardar by remember {
         mutableStateOf(false)
     }
 
-    var guardando by rememberSaveable {
+    // Evita que Guardar se ejecute varias veces
+    var guardando by remember {
         mutableStateOf(false)
     }
 
-    val estado = FormularioActividadUiState(
-        titulo = titulo,
-        descripcion = descripcion,
-        errorTitulo = errorTitulo,
-        errorDescripcion = errorDescripcion,
-        intentoGuardar = intentoGuardar
-    )
+    val errorTitulo =
+        if (intentoGuardar) {
+            validarTitulo(titulo)
+        } else {
+            null
+        }
+
+    val errorDescripcion =
+        if (intentoGuardar) {
+            validarDescripcion(descripcion)
+        } else {
+            null
+        }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center
     ) {
 
         Text(
-            text = "Crear actividad",
-            style = MaterialTheme.typography.headlineMedium
+            text = "Crear actividad"
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         OutlinedTextField(
-            value = estado.titulo,
-            onValueChange = { nuevoTitulo ->
-                titulo = nuevoTitulo
-
-                if (intentoGuardar) {
-                    errorTitulo = validarTitulo(nuevoTitulo)
+            value = titulo,
+            onValueChange = {
+                if (!guardando) {
+                    titulo = it
                 }
             },
+            modifier = Modifier.fillMaxWidth(),
             label = {
                 Text("Título")
             },
-            modifier = Modifier.fillMaxWidth(),
-            isError = estado.errorTitulo != null,
+            isError = errorTitulo != null,
             supportingText = {
-                if (estado.errorTitulo != null) {
-                    Text(estado.errorTitulo!!)
+                if (errorTitulo != null) {
+                    Text(errorTitulo!!)
                 } else {
-                    Text("${estado.titulo.length}/80")
+                    Text("${titulo.length}/80")
                 }
             },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text
-            )
+            enabled = !guardando
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
 
         OutlinedTextField(
-            value = estado.descripcion,
-            onValueChange = { nuevaDescripcion ->
-                descripcion = nuevaDescripcion
-
-                if (intentoGuardar) {
-                    errorDescripcion = validarDescripcion(nuevaDescripcion)
+            value = descripcion,
+            onValueChange = {
+                if (!guardando) {
+                    descripcion = it
                 }
             },
+            modifier = Modifier.fillMaxWidth(),
             label = {
                 Text("Descripción")
             },
-            modifier = Modifier.fillMaxWidth(),
-            isError = estado.errorDescripcion != null,
+            minLines = 4,
+            isError = errorDescripcion != null,
             supportingText = {
-                if (estado.errorDescripcion != null) {
-                    Text(estado.errorDescripcion!!)
+                if (errorDescripcion != null) {
+                    Text(errorDescripcion!!)
                 } else {
-                    Text("${estado.descripcion.length}/240")
+                    Text("${descripcion.length}/240")
                 }
             },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text
-            ),
-            minLines = 4
+            enabled = !guardando
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
         Button(
             onClick = {
-                if (guardando) return@Button
 
-                val nuevoErrorTitulo = validarTitulo(titulo)
-                val nuevoErrorDescripcion = validarDescripcion(descripcion)
+                // Si ya está guardando, no hace nada
+                if (guardando) {
+                    return@Button
+                }
 
-                errorTitulo = nuevoErrorTitulo
-                errorDescripcion = nuevoErrorDescripcion
                 intentoGuardar = true
 
-                if (nuevoErrorTitulo == null &&
-                    nuevoErrorDescripcion == null
+                val tituloValido =
+                    validarTitulo(titulo) == null
+
+                val descripcionValida =
+                    validarDescripcion(descripcion) == null
+
+                if (
+                    tituloValido &&
+                    descripcionValida
                 ) {
+
+                    // Bloqueamos inmediatamente el botón
                     guardando = true
 
                     onGuardar(
@@ -163,7 +159,7 @@ fun FormularioActividadScreen(
             enabled = !guardando
         ) {
             Text(
-                text = if (guardando) {
+                if (guardando) {
                     "Guardando..."
                 } else {
                     "Guardar"
@@ -171,11 +167,14 @@ fun FormularioActividadScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Button(
             onClick = onCancelar,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !guardando
         ) {
             Text("Cancelar")
         }
