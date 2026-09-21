@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,11 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.miformacionctma.domain.validarDescripcion
 import com.example.miformacionctma.domain.validarTitulo
+import com.example.miformacionctma.ui.viewmodel.OperacionUiState
 
 @Composable
 fun FormularioActividadScreen(
     onGuardar: (String, String) -> Unit,
-    onCancelar: () -> Unit
+    onCancelar: () -> Unit,
+    operacionUiState: OperacionUiState = OperacionUiState.Inactiva
 ) {
     var titulo by remember {
         mutableStateOf("")
@@ -37,10 +41,8 @@ fun FormularioActividadScreen(
         mutableStateOf(false)
     }
 
-    // Evita que Guardar se ejecute varias veces
-    var guardando by remember {
-        mutableStateOf(false)
-    }
+    val guardando =
+        operacionUiState is OperacionUiState.EnCurso
 
     val errorTitulo =
         if (intentoGuardar) {
@@ -55,6 +57,14 @@ fun FormularioActividadScreen(
         } else {
             null
         }
+
+    LaunchedEffect(operacionUiState) {
+        if (operacionUiState is OperacionUiState.Exitosa) {
+            titulo = ""
+            descripcion = ""
+            intentoGuardar = false
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -125,10 +135,44 @@ fun FormularioActividadScreen(
             modifier = Modifier.height(20.dp)
         )
 
+        when (val estado = operacionUiState) {
+
+            OperacionUiState.EnCurso -> {
+                CircularProgressIndicator()
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+                Text(
+                    text = "Guardando actividad..."
+                )
+            }
+
+            OperacionUiState.Exitosa -> {
+                Text(
+                    text = "Actividad guardada correctamente."
+                )
+            }
+
+            is OperacionUiState.Fallida -> {
+                Text(
+                    text = "No se pudo guardar: ${estado.mensaje}"
+                )
+            }
+
+            OperacionUiState.Inactiva -> {
+                // No mostramos mensaje.
+            }
+        }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
         Button(
             onClick = {
 
-                // Si ya está guardando, no hace nada
                 if (guardando) {
                     return@Button
                 }
@@ -145,10 +189,6 @@ fun FormularioActividadScreen(
                     tituloValido &&
                     descripcionValida
                 ) {
-
-                    // Bloqueamos inmediatamente el botón
-                    guardando = true
-
                     onGuardar(
                         titulo.trim(),
                         descripcion.trim()

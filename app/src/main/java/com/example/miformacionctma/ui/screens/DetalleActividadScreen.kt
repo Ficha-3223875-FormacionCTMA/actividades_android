@@ -17,6 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.miformacionctma.domain.ActividadFormativa
+import com.example.miformacionctma.domain.validarDescripcion
+import com.example.miformacionctma.domain.validarTitulo
 
 @Composable
 fun DetalleActividadScreen(
@@ -55,6 +57,28 @@ fun DetalleActividadScreen(
         )
     }
 
+    var intentoGuardar by remember {
+        mutableStateOf(false)
+    }
+
+    val errorTitulo =
+        if (intentoGuardar) {
+            validarTitulo(titulo)
+        } else {
+            null
+        }
+
+    val errorDescripcion =
+        if (intentoGuardar) {
+            validarDescripcion(descripcion)
+        } else {
+            null
+        }
+
+    val puedeGuardar =
+        validarTitulo(titulo) == null &&
+                validarDescripcion(descripcion) == null
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,6 +100,14 @@ fun DetalleActividadScreen(
             label = {
                 Text("Título")
             },
+            isError = errorTitulo != null,
+            supportingText = {
+                if (errorTitulo != null) {
+                    Text(errorTitulo!!)
+                } else {
+                    Text("${titulo.length}/80")
+                }
+            },
             singleLine = true
         )
 
@@ -92,7 +124,15 @@ fun DetalleActividadScreen(
             label = {
                 Text("Descripción")
             },
-            minLines = 4
+            minLines = 4,
+            isError = errorDescripcion != null,
+            supportingText = {
+                if (errorDescripcion != null) {
+                    Text(errorDescripcion!!)
+                } else {
+                    Text("${descripcion.length}/240")
+                }
+            }
         )
 
         Spacer(
@@ -101,10 +141,14 @@ fun DetalleActividadScreen(
 
         Button(
             onClick = {
-                onActualizar(
-                    titulo.trim(),
-                    descripcion.trim()
-                )
+                intentoGuardar = true
+
+                if (puedeGuardar) {
+                    onActualizar(
+                        titulo.trim(),
+                        descripcion.trim()
+                    )
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {

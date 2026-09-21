@@ -1,13 +1,21 @@
 package com.example.miformacionctma
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,339 +23,617 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.miformacionctma.data.Actividad
 import com.example.miformacionctma.data.ActividadRepository
-import com.example.miformacionctma.data.AuthManager
 import com.example.miformacionctma.data.PreferencesRepository
 import com.example.miformacionctma.domain.ActividadFormativa
 import com.example.miformacionctma.domain.Prioridad
 import com.example.miformacionctma.ui.screens.DetalleActividadScreen
 import com.example.miformacionctma.ui.screens.FormularioActividadScreen
-import kotlinx.coroutines.launch
+import com.example.miformacionctma.ui.viewmodel.ActividadViewModel
+import com.example.miformacionctma.ui.viewmodel.ListadoUiState
 
 @Composable
 fun AppNavigation(
     repository: ActividadRepository,
     preferencesRepository: PreferencesRepository
 ) {
-    val navController = rememberNavController()
-    val scope = rememberCoroutineScope()
+    val navController =
+        rememberNavController()
 
-    /*
-     * ACTIVIDADES GUARDADAS EN ROOM
-     */
-    val actividadesLocales by repository
-        .observarActividadesLocales()
-        .collectAsState(initial = emptyList<Actividad>())
-
-    /*
-     * TEXTO DE BÚSQUEDA
-     */
-    var textoBusqueda by remember {
-        mutableStateOf("")
-    }
-
-    /*
-     * ACTIVIDADES FILTRADAS DESDE ROOM
-     */
-    val actividadesFiltradas by repository
-        .buscarActividadesLocales(textoBusqueda)
-        .collectAsState(initial = emptyList<Actividad>())
-
-    /*
-     * PREFERENCIA DE ORDEN
-     *
-     * Se guarda usando SharedPreferences.
-     */
-    var ordenDescendente by remember {
-        mutableStateOf(
-            preferencesRepository.obtenerOrdenDescendente()
+    val viewModel: ActividadViewModel =
+        viewModel(
+            factory =
+                ActividadViewModelFactory(
+                    repository,
+                    preferencesRepository
+                )
         )
-    }
 
-    /*
-     * SINCRONIZAR CON FASTAPI AL ABRIR LA APP
-     */
+    val listadoUiState by viewModel
+        .listadoUiState
+        .collectAsStateWithLifecycle()
+
+    val operacionUiState by viewModel
+        .operacionUiState
+        .collectAsStateWithLifecycle()
+
+    val textoBusqueda by viewModel
+        .obtenerTextoBusqueda()
+        .collectAsStateWithLifecycle()
+
+    val ordenDescendente by viewModel
+        .obtenerOrdenDescendente()
+        .collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
-        try {
-            repository.sincronizarDesdeApi(
-                token = AuthManager.token
-            )
-        } catch (e: Exception) {
-            println(
-                "ERROR SINCRONIZANDO ROOM: ${e.message}"
-            )
-        }
+        viewModel.sincronizar()
     }
 
-    /*
-     * LISTA QUE SE MOSTRARÁ EN PANTALLA
-     */
-    val listaParaMostrar: List<Actividad> =
-        if (textoBusqueda.isBlank()) {
-            if (ordenDescendente) {
-                actividadesLocales
-            } else {
-                actividadesLocales.reversed()
-            }
-        } else {
-            if (ordenDescendente) {
-                actividadesFiltradas
-            } else {
-                actividadesFiltradas.reversed()
-            }
-        }
-
-    /*
-     * CONVERTIR Actividad DE DATOS
-     * A ActividadFormativa PARA LA INTERFAZ
-     */
-    val actividadesFormativas: List<ActividadFormativa> =
-        listaParaMostrar.map { actividad ->
-
-            ActividadFormativa(
-                id = actividad.id
-                    .removePrefix("ACT-")
-                    .toLongOrNull()
-                    ?: 0L,
-
-                titulo = actividad.titulo,
-
-                descripcion = actividad.descripcion,
-
-                progreso = when (actividad.estado) {
-                    "COMPLETADA" -> 100
-                    "EN_PROCESO" -> 50
-                    else -> 0
-                },
-
-                diasRestantes = 5,
-
-                prioridad = Prioridad.MEDIA
-            )
-        }
-
-    /*
-     * NAVEGACIÓN
-     */
     NavHost(
         navController = navController,
         startDestination = "lista"
     ) {
 
-        /*
-         * PANTALLA PRINCIPAL
-         */
+        // =========================================
+        // LISTA PRINCIPAL
+        // =========================================
+
         composable("lista") {
 
-            PantallaInicio(
-                nombre = "Aprendiz",
+            when (
+                val estado =
+                    listadoUiState
+            ) {
 
-                actividades = actividadesFormativas,
+                // ---------------------------------
+                // CARGANDO
+                // ---------------------------------
 
-                textoBusqueda = textoBusqueda,
+                ListadoUiState.Cargando -> {
 
-                onTextoBusqueda = {
-                    textoBusqueda = it
-                },
+                    EstadoCargando()
+                }
 
-                ordenDescendente = ordenDescendente,
+                // ---------------------------------
+                // BASE DE DATOS REALMENTE VACÍA
+                // ---------------------------------
 
-                onCambiarOrden = {
+                ListadoUiState.Vacio -> {
 
-                    val nuevoOrden =
-                        !ordenDescendente
+                    EstadoVacio(
+                        onCrearActividad = {
 
-                    preferencesRepository
-                        .guardarOrdenDescendente(
-                            nuevoOrden
-                        )
+                            viewModel
+                                .reiniciarEstadoOperacion()
 
-                    ordenDescendente =
-                        nuevoOrden
-                },
-
-                onCrearActividad = {
-                    navController.navigate("crear")
-                },
-
-                onSeleccionarActividad = { id ->
-
-                    navController.navigate(
-                        "detalle/$id"
+                            navController
+                                .navigate("crear")
+                        }
                     )
                 }
-            )
+
+                // ---------------------------------
+                // ERROR
+                // ---------------------------------
+
+                is ListadoUiState.Error -> {
+
+                    EstadoError(
+                        mensaje = estado.mensaje,
+
+                        onReintentar = {
+                            viewModel.sincronizar()
+                        }
+                    )
+                }
+
+                // ---------------------------------
+                // CONTENIDO
+                //
+                // IMPORTANTE:
+                // Puede contener una lista vacía
+                // cuando la búsqueda no encuentra
+                // coincidencias.
+                //
+                // La pantalla principal sigue
+                // apareciendo porque aquí siempre
+                // usamos PantallaInicio.
+                // ---------------------------------
+
+                is ListadoUiState.Contenido -> {
+
+                    val actividades =
+                        estado.actividades
+
+                    val actividadesFormativas =
+                        actividades.map {
+                                actividad ->
+
+                            val idNumerico =
+                                actividad.id
+                                    .removePrefix(
+                                        "ACT-"
+                                    )
+                                    .toLongOrNull()
+                                    ?: 0L
+
+                            ActividadFormativa(
+                                id = idNumerico,
+
+                                titulo =
+                                    actividad.titulo,
+
+                                descripcion =
+                                    actividad.descripcion,
+
+                                progreso =
+                                    when (
+                                        actividad.estado
+                                    ) {
+                                        "COMPLETADA" ->
+                                            100
+
+                                        "EN_PROCESO" ->
+                                            50
+
+                                        else ->
+                                            0
+                                    },
+
+                                diasRestantes = 5,
+
+                                prioridad =
+                                    Prioridad.MEDIA
+                            )
+                        }
+
+                    PantallaInicio(
+                        nombre = "Aprendiz",
+
+                        actividades =
+                            actividadesFormativas,
+
+                        textoBusqueda =
+                            textoBusqueda,
+
+                        onTextoBusqueda = {
+                                texto ->
+
+                            viewModel
+                                .cambiarBusqueda(
+                                    texto
+                                )
+                        },
+
+                        ordenDescendente =
+                            ordenDescendente,
+
+                        onCambiarOrden = {
+
+                            viewModel
+                                .cambiarOrden()
+                        },
+
+                        onCrearActividad = {
+
+                            viewModel
+                                .reiniciarEstadoOperacion()
+
+                            navController
+                                .navigate("crear")
+                        },
+
+                        onSeleccionarActividad = {
+                                id ->
+
+                            navController
+                                .navigate(
+                                    "detalle/$id"
+                                )
+                        }
+                    )
+                }
+            }
         }
 
-        /*
-         * PANTALLA CREAR ACTIVIDAD
-         */
+        // =========================================
+        // CREAR ACTIVIDAD
+        // =========================================
+
         composable("crear") {
+
+            LaunchedEffect(Unit) {
+
+                viewModel
+                    .reiniciarEstadoOperacion()
+            }
 
             FormularioActividadScreen(
 
-                onGuardar = { titulo, descripcion ->
+                onGuardar = {
+                        titulo,
+                        descripcion ->
 
-                    val nuevaActividad =
-                        Actividad(
-                            titulo = titulo,
-                            descripcion = descripcion,
-                            aprendiz = "APR-01",
-                            estado = "PENDIENTE",
-                            createdAt = ""
-                        )
+                    viewModel.crearActividad(
 
-                    scope.launch {
+                        titulo = titulo,
 
-                        try {
+                        descripcion = descripcion,
 
-                            repository.crearActividad(
-                                token = AuthManager.token,
-                                actividad = nuevaActividad
-                            )
+                        onCompletado = {
 
-                            navController.popBackStack()
-
-                        } catch (e: Exception) {
-
-                            println(
-                                "ERROR CREANDO ACTIVIDAD: " +
-                                        e.message
-                            )
+                            navController
+                                .popBackStack()
                         }
-                    }
+                    )
                 },
 
                 onCancelar = {
-                    navController.popBackStack()
-                }
+
+                    navController
+                        .popBackStack()
+                },
+
+                operacionUiState =
+                    operacionUiState
             )
         }
 
-        /*
-         * PANTALLA DETALLE
-         */
-        composable(
-            route = "detalle/{actividadId}",
+        // =========================================
+        // DETALLE
+        // =========================================
 
-            arguments = listOf(
-                navArgument("actividadId") {
-                    type = NavType.LongType
-                }
-            )
+        composable(
+            route =
+                "detalle/{actividadId}",
+
+            arguments =
+                listOf(
+                    navArgument(
+                        "actividadId"
+                    ) {
+                        type =
+                            NavType.LongType
+                    }
+                )
         ) { backStackEntry ->
 
             val id =
-                backStackEntry.arguments
-                    ?.getLong("actividadId")
+                backStackEntry
+                    .arguments
+                    ?.getLong(
+                        "actividadId"
+                    )
                     ?: 0L
 
+            val actividades:
+                    List<Actividad> =
+
+                if (
+                    listadoUiState
+                            is ListadoUiState.Contenido
+                ) {
+
+                    (
+                            listadoUiState
+                                    as ListadoUiState.Contenido
+                            ).actividades
+
+                } else {
+
+                    emptyList()
+                }
+
             val actividad =
-                actividadesFormativas.firstOrNull {
-                    it.id == id
+                actividades.firstOrNull {
+                        item ->
+
+                    val idNumerico =
+                        item.id
+                            .removePrefix(
+                                "ACT-"
+                            )
+                            .toLongOrNull()
+                            ?: 0L
+
+                    idNumerico == id
+                }
+
+            val actividadFormativa =
+                if (
+                    actividad != null
+                ) {
+
+                    ActividadFormativa(
+
+                        id = id,
+
+                        titulo =
+                            actividad.titulo,
+
+                        descripcion =
+                            actividad.descripcion,
+
+                        progreso =
+                            when (
+                                actividad.estado
+                            ) {
+
+                                "COMPLETADA" ->
+                                    100
+
+                                "EN_PROCESO" ->
+                                    50
+
+                                else ->
+                                    0
+                            },
+
+                        diasRestantes = 5,
+
+                        prioridad =
+                            Prioridad.MEDIA
+                    )
+
+                } else {
+
+                    null
                 }
 
             DetalleActividadScreen(
 
-                actividad = actividad,
+                actividad =
+                    actividadFormativa,
 
                 onActualizar = {
                         nuevoTitulo,
                         nuevaDescripcion ->
 
-                    if (actividad != null) {
+                    if (
+                        actividad != null
+                    ) {
 
-                        scope.launch {
+                        val actualizada =
+                            Actividad(
 
-                            val actividadActualizada =
-                                Actividad(
-                                    id = "ACT-${
-                                        actividad.id
-                                            .toString()
-                                            .padStart(
-                                                3,
-                                                '0'
-                                            )
-                                    }",
+                                id =
+                                    actividad.id,
 
-                                    titulo = nuevoTitulo,
+                                titulo =
+                                    nuevoTitulo,
 
-                                    descripcion =
-                                        nuevaDescripcion,
+                                descripcion =
+                                    nuevaDescripcion,
 
-                                    aprendiz = "APR-01",
+                                aprendiz =
+                                    actividad.aprendiz,
 
-                                    estado = when {
+                                estado =
+                                    actividad.estado,
 
-                                        actividad.progreso ==
-                                                100 ->
-                                            "COMPLETADA"
-
-                                        actividad.progreso >
-                                                0 ->
-                                            "EN_PROCESO"
-
-                                        else ->
-                                            "PENDIENTE"
-                                    },
-
-                                    createdAt = ""
-                                )
-
-                            repository.actualizarLocal(
-                                actividadActualizada
+                                createdAt =
+                                    actividad.createdAt
                             )
 
-                            navController.popBackStack()
-                        }
+                        viewModel
+                            .actualizarActividad(
+                                actualizada
+                            )
+
+                        navController
+                            .popBackStack()
                     }
                 },
 
                 onEliminar = {
 
-                    if (actividad != null) {
+                    if (
+                        actividad != null
+                    ) {
 
-                        scope.launch {
-
-                            val actividadEliminar =
-                                Actividad(
-                                    id = "ACT-${
-                                        actividad.id
-                                            .toString()
-                                            .padStart(
-                                                3,
-                                                '0'
-                                            )
-                                    }",
-
-                                    titulo =
-                                        actividad.titulo,
-
-                                    descripcion =
-                                        actividad.descripcion
-                                            ?: "",
-
-                                    aprendiz =
-                                        "APR-01",
-
-                                    estado =
-                                        "PENDIENTE",
-
-                                    createdAt = ""
-                                )
-
-                            repository.eliminarLocal(
-                                actividadEliminar
+                        viewModel
+                            .eliminarActividad(
+                                actividad
                             )
 
-                            navController.popBackStack()
-                        }
+                        navController
+                            .popBackStack()
                     }
                 },
 
                 onVolver = {
-                    navController.popBackStack()
+
+                    navController
+                        .popBackStack()
                 }
             )
         }
+    }
+}
+
+// =========================================
+// ESTADO CARGANDO
+// =========================================
+
+@Composable
+private fun EstadoCargando() {
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+
+        horizontalAlignment =
+            Alignment.CenterHorizontally,
+
+        verticalArrangement =
+            Arrangement.Center
+    ) {
+
+        CircularProgressIndicator()
+
+        Text(
+            text =
+                "Cargando actividades...",
+
+            modifier =
+                Modifier.padding(
+                    top = 16.dp
+                ),
+
+            style =
+                MaterialTheme
+                    .typography
+                    .bodyLarge
+        )
+    }
+}
+
+// =========================================
+// BASE DE DATOS REALMENTE VACÍA
+// =========================================
+
+@Composable
+private fun EstadoVacio(
+    onCrearActividad: () -> Unit
+) {
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+
+        horizontalAlignment =
+            Alignment.CenterHorizontally,
+
+        verticalArrangement =
+            Arrangement.Center
+    ) {
+
+        Text(
+            text =
+                "No hay actividades todavía",
+
+            style =
+                MaterialTheme
+                    .typography
+                    .headlineSmall
+        )
+
+        Text(
+            text =
+                "Puedes crear tu primera actividad.",
+
+            modifier =
+                Modifier.padding(
+                    top = 8.dp,
+                    bottom = 16.dp
+                )
+        )
+
+        Button(
+            onClick =
+                onCrearActividad
+        ) {
+
+            Text(
+                text =
+                    "Crear actividad"
+            )
+        }
+    }
+}
+
+// =========================================
+// ESTADO ERROR
+// =========================================
+
+@Composable
+private fun EstadoError(
+    mensaje: String,
+    onReintentar: () -> Unit
+) {
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+
+        horizontalAlignment =
+            Alignment.CenterHorizontally,
+
+        verticalArrangement =
+            Arrangement.Center
+    ) {
+
+        Text(
+            text =
+                "No se pudieron cargar las actividades",
+
+            style =
+                MaterialTheme
+                    .typography
+                    .headlineSmall
+        )
+
+        Text(
+            text =
+                mensaje,
+
+            modifier =
+                Modifier.padding(
+                    top = 8.dp,
+                    bottom = 16.dp
+                )
+        )
+
+        Button(
+            onClick =
+                onReintentar
+        ) {
+
+            Text(
+                text =
+                    "Reintentar"
+            )
+        }
+    }
+}
+
+// =========================================
+// FACTORY DEL VIEWMODEL
+// =========================================
+
+class ActividadViewModelFactory(
+    private val repository:
+    ActividadRepository,
+
+    private val preferencesRepository:
+    PreferencesRepository
+) : androidx.lifecycle.ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T :
+    androidx.lifecycle.ViewModel> create(
+        modelClass: Class<T>
+    ): T {
+
+        if (
+            modelClass.isAssignableFrom(
+                ActividadViewModel::class.java
+            )
+        ) {
+
+            return ActividadViewModel(
+                repository,
+                preferencesRepository
+            ) as T
+        }
+
+        throw IllegalArgumentException(
+            "ViewModel desconocido"
+        )
     }
 }

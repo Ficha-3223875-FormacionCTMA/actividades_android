@@ -1,36 +1,37 @@
 package com.example.miformacionctma.data
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+private val Context.dataStore by preferencesDataStore(
+    name = "preferencias_ctma"
+)
 
 class PreferencesRepository(
     private val context: Context
-) {
+) : PreferenciasDataSource {
 
-    fun obtenerOrdenDescendente(): Boolean {
-        val prefs = context.getSharedPreferences(
-            "preferencias_ctma",
-            Context.MODE_PRIVATE
-        )
-
-        return prefs.getBoolean(
-            "orden_descendente",
-            true
-        )
+    companion object {
+        private val ORDEN_DESCENDENTE =
+            booleanPreferencesKey("orden_descendente")
     }
 
-    fun guardarOrdenDescendente(
+    override fun observarOrdenDescendente(): Flow<Boolean> {
+        return context.dataStore.data.map { preferencias ->
+            preferencias[ORDEN_DESCENDENTE] ?: true
+        }
+    }
+
+    override suspend fun guardarOrdenDescendente(
         descendente: Boolean
     ) {
-        val prefs = context.getSharedPreferences(
-            "preferencias_ctma",
-            Context.MODE_PRIVATE
-        )
-
-        prefs.edit()
-            .putBoolean(
-                "orden_descendente",
+        context.dataStore.edit { preferencias ->
+            preferencias[ORDEN_DESCENDENTE] =
                 descendente
-            )
-            .apply()
+        }
     }
 }
