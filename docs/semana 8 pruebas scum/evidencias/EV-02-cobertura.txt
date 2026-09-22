@@ -1,0 +1,22 @@
+EVIDENCIA EV-02 — COBERTURA
+
+Herramienta:
+Vitest + V8
+
+Comando:
+npm run coverage
+
+Resultado:
+Cobertura general: 76,36%
+
+actividad-service.js:
+100% statements
+100% branches
+100% functions
+100% lines
+
+actividad-status.js:
+92,59% statements
+86,66% branches
+100% functions
+92,59% lines

@@ -1,0 +1,17 @@
+EVIDENCIA EV-01 — PRUEBAS UNITARIAS
+
+Herramienta:
+Vitest 3.2.7
+
+Comando:
+npm test
+
+Resultado:
+3 archivos de pruebas aprobados.
+18 pruebas aprobadas.
+0 pruebas fallidas.
+
+Archivos:
+- actividad-status.test.js
+- actividad-status-parametrized.test.js
+- actividad-service.test.js

@@ -1,0 +1,18 @@
+EVIDENCIA EV-03 — REPETIBILIDAD
+
+La suite fue ejecutada 3 veces sin modificar el código.
+
+Ejecución 1:
+18 pruebas aprobadas.
+0 fallos.
+
+Ejecución 2:
+18 pruebas aprobadas.
+0 fallos.
+
+Ejecución 3:
+18 pruebas aprobadas.
+0 fallos.
+
+Conclusión:
+La suite presenta comportamiento repetible.

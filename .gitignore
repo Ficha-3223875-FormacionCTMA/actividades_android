@@ -30,3 +30,15 @@ replay_pid*
 
 # Archivos temporales
 .DS_Store
+
+# Archivos temporales
+.DS_Store
+
+# Node / Vitest
+**/node_modules/
+**/coverage/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/

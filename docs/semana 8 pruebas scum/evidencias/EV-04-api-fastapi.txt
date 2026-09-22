@@ -1,0 +1,26 @@
+EVIDENCIA EV-04 — PRUEBAS AUTOMATIZADAS DE API
+
+Herramienta:
+pytest 9.1.1
+FastAPI TestClient
+
+Archivo:
+pruebas_api/test_api.py
+
+Casos automatizados:
+
+1. GET /api/actividades
+Resultado esperado: HTTP 200
+Resultado: APROBADO
+
+2. POST /api/actividades
+Resultado esperado: HTTP 201
+Resultado: APROBADO
+
+3. GET /api/actividades sin autenticación
+Resultado esperado: HTTP 401
+Resultado: APROBADO
+
+Resultado final:
+3 pruebas aprobadas.
+0 pruebas fallidas.
