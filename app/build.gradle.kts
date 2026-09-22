@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room3)
 }
@@ -61,10 +62,13 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
-    // Retrofit - conexión con FastAPI
+    // Retrofit + Kotlin Serialization
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
+// OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

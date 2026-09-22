@@ -7,7 +7,7 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 kotlin = "2.0.21"
-composeBom = "2024.09.00"
+composeBom = "2024.09.03"
 navigationCompose = "2.8.3"
 desugarJdkLibs = "2.1.2"
 
@@ -43,5 +43,6 @@ androidx-room3-compiler = { group = "androidx.room3", name = "room3-compiler", v
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidx-room3 = { id = "androidx.room3", version.ref = "room3" }

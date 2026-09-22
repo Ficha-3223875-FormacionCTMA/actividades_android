@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.miformacionctma.data.Actividad
 import com.example.miformacionctma.data.ActividadRepository
-import com.example.miformacionctma.data.AuthManager
 import com.example.miformacionctma.data.PreferenciasDataSource
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
@@ -51,43 +50,20 @@ class ActividadViewModel(
     private val preferencesRepository: PreferenciasDataSource
 ) : ViewModel() {
 
-    // =========================================
-    // TEXTO DE BÚSQUEDA
-    // =========================================
-
     private val textoBusqueda =
         MutableStateFlow("")
-
-    // =========================================
-    // ORDEN GUARDADO EN DATASTORE
-    // =========================================
 
     private val ordenDescendente =
         preferencesRepository
             .observarOrdenDescendente()
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(
-                    5_000
-                ),
+                started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = true
             )
 
-    // =========================================
-    // ERROR DE LISTADO
-    // =========================================
-
     private val _errorListado =
         MutableStateFlow<String?>(null)
-
-    // =========================================
-    // ACTIVIDADES FILTRADAS
-    // =========================================
-    //
-    // mapLatest permite cancelar el procesamiento
-    // anterior cuando llega una búsqueda nueva.
-    //
-    // =========================================
 
     private val actividadesFiltradas: Flow<List<Actividad>> =
         combine(
@@ -96,20 +72,12 @@ class ActividadViewModel(
                 .debounce(300)
                 .distinctUntilChanged()
         ) { actividades, texto ->
-
-            Pair(
-                actividades,
-                texto
-            )
-
+            Pair(actividades, texto)
         }.mapLatest { (actividades, texto) ->
 
             if (texto.isBlank()) {
-
                 actividades
-
             } else {
-
                 actividades.filter { actividad ->
 
                     actividad.titulo.contains(
@@ -123,10 +91,6 @@ class ActividadViewModel(
                 }
             }
         }
-
-    // =========================================
-    // ESTADO PRINCIPAL DEL LISTADO
-    // =========================================
 
     val listadoUiState:
             StateFlow<ListadoUiState> =
@@ -146,52 +110,23 @@ class ActividadViewModel(
                 descendente,
                 error ->
 
-            // =================================
-            // ERROR
-            // =================================
-
             if (error != null) {
 
-                ListadoUiState.Error(
-                    error
-                )
+                ListadoUiState.Error(error)
 
-            }
-
-            // =================================
-            // BASE DE DATOS REALMENTE VACÍA
-            // =================================
-
-            else if (
+            } else if (
                 actividadesOriginales.isEmpty() &&
                 texto.isBlank()
             ) {
 
                 ListadoUiState.Vacio
-            }
 
-            // =================================
-            // HAY ACTIVIDADES
-            //
-            // Aunque la búsqueda no encuentre
-            // coincidencias, seguimos enviando
-            // Contenido.
-            //
-            // Esto permite que la pantalla
-            // principal siga mostrando el
-            // buscador.
-            // =================================
-
-            else {
+            } else {
 
                 val ordenadas =
-
                     if (descendente) {
-
                         filtradas
-
                     } else {
-
                         filtradas.reversed()
                     }
 
@@ -202,19 +137,9 @@ class ActividadViewModel(
 
         }.stateIn(
             scope = viewModelScope,
-
-            started =
-                SharingStarted.WhileSubscribed(
-                    5_000
-                ),
-
-            initialValue =
-                ListadoUiState.Cargando
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ListadoUiState.Cargando
         )
-
-    // =========================================
-    // ESTADO DE OPERACIÓN
-    // =========================================
 
     private val _operacionUiState =
         MutableStateFlow<OperacionUiState>(
@@ -225,19 +150,11 @@ class ActividadViewModel(
             StateFlow<OperacionUiState> =
         _operacionUiState
 
-    // =========================================
-    // REINICIAR ESTADO DE OPERACIÓN
-    // =========================================
-
     fun reiniciarEstadoOperacion() {
 
         _operacionUiState.value =
             OperacionUiState.Inactiva
     }
-
-    // =========================================
-    // CAMBIAR BÚSQUEDA
-    // =========================================
 
     fun cambiarBusqueda(
         texto: String
@@ -245,10 +162,6 @@ class ActividadViewModel(
 
         textoBusqueda.value = texto
     }
-
-    // =========================================
-    // CAMBIAR ORDEN
-    // =========================================
 
     fun cambiarOrden() {
 
@@ -283,29 +196,17 @@ class ActividadViewModel(
         }
     }
 
-    // =========================================
-    // OBTENER TEXTO DE BÚSQUEDA
-    // =========================================
-
     fun obtenerTextoBusqueda():
             StateFlow<String> {
 
         return textoBusqueda
     }
 
-    // =========================================
-    // OBTENER ORDEN
-    // =========================================
-
     fun obtenerOrdenDescendente():
             StateFlow<Boolean> {
 
         return ordenDescendente
     }
-
-    // =========================================
-    // SINCRONIZAR CON FASTAPI
-    // =========================================
 
     fun sincronizar() {
 
@@ -318,9 +219,7 @@ class ActividadViewModel(
 
             try {
 
-                repository.sincronizarDesdeApi(
-                    token = AuthManager.token
-                )
+                repository.sincronizarDesdeApi()
 
                 _operacionUiState.value =
                     OperacionUiState.Exitosa
@@ -350,10 +249,6 @@ class ActividadViewModel(
         }
     }
 
-    // =========================================
-    // CREAR ACTIVIDAD
-    // =========================================
-
     fun crearActividad(
         titulo: String,
         descripcion: String,
@@ -377,8 +272,7 @@ class ActividadViewModel(
                     )
 
                 repository.crearActividad(
-                    token = AuthManager.token,
-                    actividad = actividad
+                    actividad
                 )
 
                 _operacionUiState.value =
@@ -396,18 +290,15 @@ class ActividadViewModel(
                 e: Exception
             ) {
 
+                e.printStackTrace()
+
                 _operacionUiState.value =
                     OperacionUiState.Fallida(
-                        e.message
-                            ?: "No se pudo guardar la actividad"
+                        "ERROR: ${e.javaClass.simpleName}: ${e.message}"
                     )
             }
         }
     }
-
-    // =========================================
-    // ACTUALIZAR ACTIVIDAD
-    // =========================================
 
     fun actualizarActividad(
         actividad: Actividad
@@ -445,10 +336,6 @@ class ActividadViewModel(
             }
         }
     }
-
-    // =========================================
-    // ELIMINAR ACTIVIDAD
-    // =========================================
 
     fun eliminarActividad(
         actividad: Actividad

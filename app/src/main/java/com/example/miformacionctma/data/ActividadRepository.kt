@@ -3,6 +3,10 @@ package com.example.miformacionctma.data
 import com.example.miformacionctma.data.local.dao.ActividadDao
 import com.example.miformacionctma.data.local.mapper.toActividad
 import com.example.miformacionctma.data.local.mapper.toEntity
+import com.example.miformacionctma.data.remote.CrearActividadDto
+import com.example.miformacionctma.data.remote.RemoteActividadDataSource
+import com.example.miformacionctma.data.remote.toDomain
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -11,6 +15,8 @@ class ActividadRepository(
     private val dao: ActividadDao
 ) {
 
+    private val remote = RemoteActividadDataSource(api)
+
     fun observarActividadesLocales(): Flow<List<Actividad>> {
         return dao.observarActividades()
             .map { lista ->
@@ -18,65 +24,36 @@ class ActividadRepository(
             }
     }
 
-    fun buscarActividadesLocales(
-        texto: String
-    ): Flow<List<Actividad>> {
+    fun buscarActividadesLocales(texto: String): Flow<List<Actividad>> {
         return dao.buscar(texto)
             .map { lista ->
                 lista.map { it.toActividad() }
             }
     }
 
-    suspend fun obtenerActividadLocal(
-        id: Long
-    ): Actividad? {
+    suspend fun obtenerActividadLocal(id: Long): Actividad? {
         return dao.obtenerPorId(id)?.toActividad()
     }
 
-    suspend fun guardarLocal(
-        actividad: Actividad
-    ) {
-        val resultado = dao.guardar(
-            actividad.toEntity()
-        )
-
-        println("ROOM GUARDÓ ACTIVIDAD. ID: $resultado")
+    suspend fun guardarLocal(actividad: Actividad) {
+        dao.guardar(actividad.toEntity())
     }
 
-    suspend fun guardarTodasLocales(
-        actividades: List<Actividad>
-    ) {
+    suspend fun guardarTodasLocales(actividades: List<Actividad>) {
         dao.guardarTodas(
-            actividades.map {
-                it.toEntity()
-            }
-        )
-
-        println(
-            "ROOM GUARDÓ ${actividades.size} ACTIVIDADES"
+            actividades.map { it.toEntity() }
         )
     }
 
-    suspend fun actualizarLocal(
-        actividad: Actividad
-    ) {
-        dao.guardar(
-            actividad.toEntity()
-        )
-
-        println(
-            "ROOM ACTUALIZÓ ACTIVIDAD: ${actividad.id}"
-        )
+    suspend fun actualizarLocal(actividad: Actividad) {
+        dao.guardar(actividad.toEntity())
     }
 
-    suspend fun eliminarLocal(
-        actividad: Actividad
-    ) {
+    suspend fun eliminarLocal(actividad: Actividad) {
         dao.eliminarPorId(
             actividad.id
                 .removePrefix("ACT-")
-                .toLongOrNull()
-                ?: 0L
+                .toLongOrNull() ?: 0L
         )
     }
 
@@ -84,56 +61,45 @@ class ActividadRepository(
         dao.eliminarTodas()
     }
 
-    suspend fun sincronizarDesdeApi(
-        token: String
-    ): List<Actividad> {
+    suspend fun sincronizarDesdeApi(): List<Actividad> {
+        return try {
+            val actividadesDto = remote.obtenerActividades()
 
-        val respuesta =
-            api.obtenerActividades(token)
+            val actividades = actividadesDto.map {
+                it.toDomain()
+            }
 
-        guardarTodasLocales(
-            respuesta.actividades
-        )
+            guardarTodasLocales(actividades)
 
-        return respuesta.actividades
+            actividades
+        } catch (e: CancellationException) {
+            throw e
+        }
     }
 
     suspend fun crearActividad(
-        token: String,
         actividad: Actividad
     ): Actividad {
-
         return try {
 
-            // Primero se intenta crear la actividad en FastAPI
-            val creada = api.crearActividad(
-                token = token,
-                actividad = actividad
+            val solicitud = CrearActividadDto(
+                titulo = actividad.titulo,
+                descripcion = actividad.descripcion,
+                aprendiz = actividad.aprendiz
             )
 
-            // Se guarda una sola vez la actividad
-            // que devuelve FastAPI
+            val creadaDto = remote.crearActividad(
+                solicitud
+            )
+
+            val creada = creadaDto.toDomain()
+
             guardarLocal(creada)
-
-            println(
-                "ACTIVIDAD CREADA EN FASTAPI Y ROOM: ${creada.id}"
-            )
 
             creada
 
-        } catch (e: Exception) {
-
-            // Si FastAPI no está disponible,
-            // se conserva la actividad en Room
-            guardarLocal(actividad)
-
-            println(
-                "FASTAPI NO DISPONIBLE. " +
-                        "ACTIVIDAD GUARDADA EN ROOM: " +
-                        e.message
-            )
-
-            actividad
+        } catch (e: CancellationException) {
+            throw e
         }
     }
 }
