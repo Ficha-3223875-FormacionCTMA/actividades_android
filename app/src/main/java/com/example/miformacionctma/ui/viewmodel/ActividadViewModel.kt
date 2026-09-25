@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -76,8 +77,11 @@ class ActividadViewModel(
         }.mapLatest { (actividades, texto) ->
 
             if (texto.isBlank()) {
+
                 actividades
+
             } else {
+
                 actividades.filter { actividad ->
 
                     actividad.titulo.contains(
@@ -112,7 +116,28 @@ class ActividadViewModel(
 
             if (error != null) {
 
-                ListadoUiState.Error(error)
+                /*
+                 * Si ya existen actividades en Room,
+                 * seguimos mostrando los datos locales
+                 * aunque falle FastAPI.
+                 */
+                if (actividadesOriginales.isNotEmpty()) {
+
+                    val ordenadas =
+                        if (descendente) {
+                            filtradas
+                        } else {
+                            filtradas.reversed()
+                        }
+
+                    ListadoUiState.Contenido(
+                        ordenadas
+                    )
+
+                } else {
+
+                    ListadoUiState.Error(error)
+                }
 
             } else if (
                 actividadesOriginales.isEmpty() &&
@@ -208,6 +233,31 @@ class ActividadViewModel(
         return ordenDescendente
     }
 
+    // =========================================
+    // ACTIVIDAD LOCAL DESDE ROOM
+    // =========================================
+
+    fun observarActividadLocal(
+        id: Long
+    ): Flow<Actividad?> {
+
+        return repository
+            .observarActividadesLocales()
+            .map { actividades ->
+
+                actividades.firstOrNull { actividad ->
+
+                    actividad.id
+                        .removePrefix("ACT-")
+                        .toLongOrNull() == id
+                }
+            }
+    }
+
+    // =========================================
+    // SINCRONIZACIÓN CON FASTAPI
+    // =========================================
+
     fun sincronizar() {
 
         viewModelScope.launch {
@@ -219,7 +269,9 @@ class ActividadViewModel(
 
             try {
 
-                repository.sincronizarDesdeApi()
+                repository.sincronizarDesdeApi(
+                    token = "token-APR-01"
+                )
 
                 _operacionUiState.value =
                     OperacionUiState.Exitosa
@@ -249,6 +301,10 @@ class ActividadViewModel(
         }
     }
 
+    // =========================================
+    // CREAR ACTIVIDAD
+    // =========================================
+
     fun crearActividad(
         titulo: String,
         descripcion: String,
@@ -272,7 +328,8 @@ class ActividadViewModel(
                     )
 
                 repository.crearActividad(
-                    actividad
+                    actividad = actividad,
+                    token = "token-APR-01"
                 )
 
                 _operacionUiState.value =
@@ -290,15 +347,17 @@ class ActividadViewModel(
                 e: Exception
             ) {
 
-                e.printStackTrace()
-
                 _operacionUiState.value =
                     OperacionUiState.Fallida(
-                        "ERROR: ${e.javaClass.simpleName}: ${e.message}"
+                        "No se pudo crear la actividad"
                     )
             }
         }
     }
+
+    // =========================================
+    // ACTUALIZAR ACTIVIDAD
+    // =========================================
 
     fun actualizarActividad(
         actividad: Actividad
@@ -336,6 +395,10 @@ class ActividadViewModel(
             }
         }
     }
+
+    // =========================================
+    // ELIMINAR ACTIVIDAD
+    // =========================================
 
     fun eliminarActividad(
         actividad: Actividad

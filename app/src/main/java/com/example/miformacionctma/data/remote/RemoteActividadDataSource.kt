@@ -6,26 +6,36 @@ class RemoteActividadDataSource(
     private val api: ApiService
 ) {
 
-    suspend fun obtenerActividades(): List<ActividadDto> {
-        val respuesta = classifyNetworkError {
-            api.obtenerActividades()
-        }
+    suspend fun obtenerActividades(
+        token: String
+    ): ActividadResponseDto {
 
-        return respuesta.getOrElse { error ->
-            throw error
-        }.actividades
+        return api.obtenerActividades(
+            token = token
+        )
     }
 
     suspend fun crearActividad(
+        token: String,
         actividad: CrearActividadDto
     ): ActividadDto {
 
-        val respuesta = classifyNetworkError {
-            api.crearActividad(actividad)
-        }
+        return api.crearActividad(
+            token = token,
+            actividad = actividad
+        )
+    }
 
-        return respuesta.getOrElse { error ->
-            throw error
-        }
+    suspend fun subirEvidencia(
+        actividadId: String,
+        token: String,
+        archivo: okhttp3.MultipartBody.Part
+    ): EvidenciaResponseDto {
+
+        return api.subirEvidencia(
+            actividadId = actividadId,
+            token = token,
+            archivo = archivo
+        )
     }
 }

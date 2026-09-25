@@ -1,9 +1,8 @@
 package com.example.miformacionctma.data.local.dao
 
-import androidx.room3.Dao
-import androidx.room3.Insert
-import androidx.room3.Query
-import androidx.room3.OnConflictStrategy
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Upsert
 import com.example.miformacionctma.data.local.entity.ActividadEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -26,10 +25,10 @@ interface ActividadDao {
     )
     fun buscar(texto: String): Flow<List<ActividadEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun guardar(actividad: ActividadEntity): Long
+    @Upsert
+    suspend fun guardar(actividad: ActividadEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun guardarTodas(
         actividades: List<ActividadEntity>
     )

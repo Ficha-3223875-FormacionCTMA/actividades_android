@@ -34,7 +34,7 @@ replay_pid*
 # Archivos temporales
 .DS_Store
 
-# Node / Vitest
+# Node / Vitest43
 **/node_modules/
 **/coverage/
 

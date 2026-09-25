@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,11 +22,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+
 import com.example.miformacionctma.data.Actividad
 import com.example.miformacionctma.data.ActividadRepository
 import com.example.miformacionctma.data.PreferencesRepository
 import com.example.miformacionctma.domain.ActividadFormativa
 import com.example.miformacionctma.domain.Prioridad
+import com.example.miformacionctma.ui.EvidenciaScreen
 import com.example.miformacionctma.ui.screens.DetalleActividadScreen
 import com.example.miformacionctma.ui.screens.FormularioActividadScreen
 import com.example.miformacionctma.ui.viewmodel.ActividadViewModel
@@ -36,16 +39,14 @@ fun AppNavigation(
     repository: ActividadRepository,
     preferencesRepository: PreferencesRepository
 ) {
-    val navController =
-        rememberNavController()
+    val navController = rememberNavController()
 
     val viewModel: ActividadViewModel =
         viewModel(
-            factory =
-                ActividadViewModelFactory(
-                    repository,
-                    preferencesRepository
-                )
+            factory = ActividadViewModelFactory(
+                repository,
+                preferencesRepository
+            )
         )
 
     val listadoUiState by viewModel
@@ -79,156 +80,89 @@ fun AppNavigation(
 
         composable("lista") {
 
-            when (
-                val estado =
-                    listadoUiState
-            ) {
-
-                // ---------------------------------
-                // CARGANDO
-                // ---------------------------------
+            when (val estado = listadoUiState) {
 
                 ListadoUiState.Cargando -> {
-
                     EstadoCargando()
                 }
-
-                // ---------------------------------
-                // BASE DE DATOS REALMENTE VACÍA
-                // ---------------------------------
 
                 ListadoUiState.Vacio -> {
 
                     EstadoVacio(
                         onCrearActividad = {
 
-                            viewModel
-                                .reiniciarEstadoOperacion()
+                            viewModel.reiniciarEstadoOperacion()
 
-                            navController
-                                .navigate("crear")
+                            navController.navigate("crear")
                         }
                     )
                 }
-
-                // ---------------------------------
-                // ERROR
-                // ---------------------------------
 
                 is ListadoUiState.Error -> {
 
                     EstadoError(
                         mensaje = estado.mensaje,
-
                         onReintentar = {
                             viewModel.sincronizar()
                         }
                     )
                 }
 
-                // ---------------------------------
-                // CONTENIDO
-                //
-                // IMPORTANTE:
-                // Puede contener una lista vacía
-                // cuando la búsqueda no encuentra
-                // coincidencias.
-                //
-                // La pantalla principal sigue
-                // apareciendo porque aquí siempre
-                // usamos PantallaInicio.
-                // ---------------------------------
-
                 is ListadoUiState.Contenido -> {
 
-                    val actividades =
-                        estado.actividades
+                    val actividades = estado.actividades
 
                     val actividadesFormativas =
-                        actividades.map {
-                                actividad ->
+                        actividades.map { actividad ->
 
                             val idNumerico =
                                 actividad.id
-                                    .removePrefix(
-                                        "ACT-"
-                                    )
+                                    .removePrefix("ACT-")
                                     .toLongOrNull()
                                     ?: 0L
 
                             ActividadFormativa(
                                 id = idNumerico,
-
-                                titulo =
-                                    actividad.titulo,
-
-                                descripcion =
-                                    actividad.descripcion,
-
+                                titulo = actividad.titulo,
+                                descripcion = actividad.descripcion,
                                 progreso =
-                                    when (
-                                        actividad.estado
-                                    ) {
-                                        "COMPLETADA" ->
-                                            100
-
-                                        "EN_PROCESO" ->
-                                            50
-
-                                        else ->
-                                            0
+                                    when (actividad.estado) {
+                                        "COMPLETADA" -> 100
+                                        "EN_PROCESO" -> 50
+                                        else -> 0
                                     },
-
                                 diasRestantes = 5,
-
-                                prioridad =
-                                    Prioridad.MEDIA
+                                prioridad = Prioridad.MEDIA
                             )
                         }
 
                     PantallaInicio(
                         nombre = "Aprendiz",
+                        actividades = actividadesFormativas,
+                        textoBusqueda = textoBusqueda,
 
-                        actividades =
-                            actividadesFormativas,
-
-                        textoBusqueda =
-                            textoBusqueda,
-
-                        onTextoBusqueda = {
-                                texto ->
-
-                            viewModel
-                                .cambiarBusqueda(
-                                    texto
-                                )
+                        onTextoBusqueda = { texto ->
+                            viewModel.cambiarBusqueda(texto)
                         },
 
-                        ordenDescendente =
-                            ordenDescendente,
+                        ordenDescendente = ordenDescendente,
 
                         onCambiarOrden = {
-
-                            viewModel
-                                .cambiarOrden()
+                            viewModel.cambiarOrden()
                         },
 
                         onCrearActividad = {
 
-                            viewModel
-                                .reiniciarEstadoOperacion()
+                            viewModel.reiniciarEstadoOperacion()
 
-                            navController
-                                .navigate("crear")
+                            navController.navigate("crear")
                         },
 
-                        onSeleccionarActividad = {
-                                id ->
+                        onSeleccionarActividad = { id ->
 
-                            navController
-                                .navigate(
-                                    "detalle/$id"
-                                )
+                            navController.navigate(
+                                "detalle/$id"
+                            )
                         }
                     )
                 }
@@ -242,208 +176,176 @@ fun AppNavigation(
         composable("crear") {
 
             LaunchedEffect(Unit) {
-
-                viewModel
-                    .reiniciarEstadoOperacion()
+                viewModel.reiniciarEstadoOperacion()
             }
 
             FormularioActividadScreen(
 
-                onGuardar = {
-                        titulo,
-                        descripcion ->
+                onGuardar = { titulo, descripcion ->
 
                     viewModel.crearActividad(
-
                         titulo = titulo,
-
                         descripcion = descripcion,
 
                         onCompletado = {
-
-                            navController
-                                .popBackStack()
+                            navController.popBackStack()
                         }
                     )
                 },
 
                 onCancelar = {
-
-                    navController
-                        .popBackStack()
+                    navController.popBackStack()
                 },
 
-                operacionUiState =
-                    operacionUiState
+                operacionUiState = operacionUiState
             )
         }
 
         // =========================================
-        // DETALLE
+        // DETALLE DE ACTIVIDAD
         // =========================================
 
         composable(
-            route =
-                "detalle/{actividadId}",
+            route = "detalle/{actividadId}",
 
-            arguments =
-                listOf(
-                    navArgument(
-                        "actividadId"
-                    ) {
-                        type =
-                            NavType.LongType
-                    }
-                )
+            arguments = listOf(
+                navArgument("actividadId") {
+                    type = NavType.LongType
+                }
+            )
         ) { backStackEntry ->
 
             val id =
-                backStackEntry
-                    .arguments
-                    ?.getLong(
-                        "actividadId"
-                    )
+                backStackEntry.arguments?.getLong("actividadId")
                     ?: 0L
 
-            val actividades:
-                    List<Actividad> =
+            // Actividad obtenida directamente desde Room.
+            val actividadActual by viewModel
+                .observarActividadLocal(id)
+                .collectAsState(initial = null)
 
-                if (
-                    listadoUiState
-                            is ListadoUiState.Contenido
-                ) {
-
-                    (
-                            listadoUiState
-                                    as ListadoUiState.Contenido
-                            ).actividades
-
-                } else {
-
-                    emptyList()
-                }
-
-            val actividad =
-                actividades.firstOrNull {
-                        item ->
-
-                    val idNumerico =
-                        item.id
-                            .removePrefix(
-                                "ACT-"
-                            )
-                            .toLongOrNull()
-                            ?: 0L
-
-                    idNumerico == id
-                }
+            // Evidencias obtenidas desde Room.
+            val evidencias by repository
+                .observarEvidencias(id)
+                .collectAsState(initial = emptyList())
 
             val actividadFormativa =
-                if (
-                    actividad != null
-                ) {
+                actividadActual?.let { item ->
 
                     ActividadFormativa(
 
                         id = id,
 
-                        titulo =
-                            actividad.titulo,
+                        titulo = item.titulo,
 
-                        descripcion =
-                            actividad.descripcion,
+                        descripcion = item.descripcion,
 
                         progreso =
-                            when (
-                                actividad.estado
-                            ) {
-
-                                "COMPLETADA" ->
-                                    100
-
-                                "EN_PROCESO" ->
-                                    50
-
-                                else ->
-                                    0
+                            when (item.estado) {
+                                "COMPLETADA" -> 100
+                                "EN_PROCESO" -> 50
+                                else -> 0
                             },
 
                         diasRestantes = 5,
 
-                        prioridad =
-                            Prioridad.MEDIA
+                        prioridad = Prioridad.MEDIA
                     )
-
-                } else {
-
-                    null
                 }
 
             DetalleActividadScreen(
 
-                actividad =
-                    actividadFormativa,
+                actividad = actividadFormativa,
+
+                evidencias = evidencias,
 
                 onActualizar = {
                         nuevoTitulo,
                         nuevaDescripcion ->
 
-                    if (
-                        actividad != null
-                    ) {
+                    val actividad =
+                        actividadActual
 
-                        val actualizada =
-                            Actividad(
+                    if (actividad != null) {
 
-                                id =
-                                    actividad.id,
+                        val actualizada = Actividad(
 
-                                titulo =
-                                    nuevoTitulo,
+                            id = actividad.id,
 
-                                descripcion =
-                                    nuevaDescripcion,
+                            titulo = nuevoTitulo,
 
-                                aprendiz =
-                                    actividad.aprendiz,
+                            descripcion = nuevaDescripcion,
 
-                                estado =
-                                    actividad.estado,
+                            aprendiz = actividad.aprendiz,
 
-                                createdAt =
-                                    actividad.createdAt
-                            )
+                            estado = actividad.estado,
 
-                        viewModel
-                            .actualizarActividad(
-                                actualizada
-                            )
+                            createdAt = actividad.createdAt
+                        )
 
-                        navController
-                            .popBackStack()
+                        viewModel.actualizarActividad(
+                            actualizada
+                        )
+
+                        navController.popBackStack()
                     }
                 },
 
                 onEliminar = {
 
-                    if (
-                        actividad != null
-                    ) {
+                    val actividad =
+                        actividadActual
 
-                        viewModel
-                            .eliminarActividad(
-                                actividad
-                            )
+                    if (actividad != null) {
 
-                        navController
-                            .popBackStack()
+                        viewModel.eliminarActividad(
+                            actividad
+                        )
+
+                        navController.popBackStack()
                     }
+                },
+
+                onAgregarEvidencia = {
+
+                    navController.navigate(
+                        "evidencia/$id"
+                    )
                 },
 
                 onVolver = {
 
-                    navController
-                        .popBackStack()
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // =========================================
+        // EVIDENCIA FOTOGRÁFICA
+        // =========================================
+
+        composable(
+            route = "evidencia/{actividadId}",
+
+            arguments = listOf(
+                navArgument("actividadId") {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+
+            val actividadId =
+                backStackEntry.arguments?.getLong("actividadId")
+                    ?: 0L
+
+            EvidenciaScreen(
+
+                actividadId = actividadId,
+
+                repository = repository,
+
+                onVolver = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -458,39 +360,31 @@ fun AppNavigation(
 private fun EstadoCargando() {
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
 
-        horizontalAlignment =
-            Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally,
 
-        verticalArrangement =
-            Arrangement.Center
+        verticalArrangement = Arrangement.Center
     ) {
 
         CircularProgressIndicator()
 
         Text(
-            text =
-                "Cargando actividades...",
+            text = "Cargando actividades...",
 
-            modifier =
-                Modifier.padding(
-                    top = 16.dp
-                ),
+            modifier = Modifier.padding(
+                top = 16.dp
+            ),
 
-            style =
-                MaterialTheme
-                    .typography
-                    .bodyLarge
+            style = MaterialTheme.typography.bodyLarge
         )
     }
 }
 
 // =========================================
-// BASE DE DATOS REALMENTE VACÍA
+// BASE DE DATOS VACÍA
 // =========================================
 
 @Composable
@@ -499,47 +393,36 @@ private fun EstadoVacio(
 ) {
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
 
-        horizontalAlignment =
-            Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally,
 
-        verticalArrangement =
-            Arrangement.Center
+        verticalArrangement = Arrangement.Center
     ) {
 
         Text(
-            text =
-                "No hay actividades todavía",
+            text = "No hay actividades todavía",
 
-            style =
-                MaterialTheme
-                    .typography
-                    .headlineSmall
+            style = MaterialTheme.typography.headlineSmall
         )
 
         Text(
-            text =
-                "Puedes crear tu primera actividad.",
+            text = "Puedes crear tu primera actividad.",
 
-            modifier =
-                Modifier.padding(
-                    top = 8.dp,
-                    bottom = 16.dp
-                )
+            modifier = Modifier.padding(
+                top = 8.dp,
+                bottom = 16.dp
+            )
         )
 
         Button(
-            onClick =
-                onCrearActividad
+            onClick = onCrearActividad
         ) {
 
             Text(
-                text =
-                    "Crear actividad"
+                text = "Crear actividad"
             )
         }
     }
@@ -556,47 +439,36 @@ private fun EstadoError(
 ) {
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
 
-        horizontalAlignment =
-            Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally,
 
-        verticalArrangement =
-            Arrangement.Center
+        verticalArrangement = Arrangement.Center
     ) {
 
         Text(
-            text =
-                "No se pudieron cargar las actividades",
+            text = "No se pudieron cargar las actividades",
 
-            style =
-                MaterialTheme
-                    .typography
-                    .headlineSmall
+            style = MaterialTheme.typography.headlineSmall
         )
 
         Text(
-            text =
-                mensaje,
+            text = mensaje,
 
-            modifier =
-                Modifier.padding(
-                    top = 8.dp,
-                    bottom = 16.dp
-                )
+            modifier = Modifier.padding(
+                top = 8.dp,
+                bottom = 16.dp
+            )
         )
 
         Button(
-            onClick =
-                onReintentar
+            onClick = onReintentar
         ) {
 
             Text(
-                text =
-                    "Reintentar"
+                text = "Reintentar"
             )
         }
     }
@@ -607,16 +479,12 @@ private fun EstadoError(
 // =========================================
 
 class ActividadViewModelFactory(
-    private val repository:
-    ActividadRepository,
-
-    private val preferencesRepository:
-    PreferencesRepository
+    private val repository: ActividadRepository,
+    private val preferencesRepository: PreferencesRepository
 ) : androidx.lifecycle.ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T :
-    androidx.lifecycle.ViewModel> create(
+    override fun <T : androidx.lifecycle.ViewModel> create(
         modelClass: Class<T>
     ): T {
 

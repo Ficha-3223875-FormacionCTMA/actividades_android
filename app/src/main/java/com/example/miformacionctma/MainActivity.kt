@@ -49,7 +49,8 @@ class MainActivity : ComponentActivity() {
         val repository =
             ActividadRepository(
                 api = RetrofitClient.apiService,
-                dao = database.actividadDao()
+                dao = database.actividadDao(),
+                evidenciaDao = database.evidenciaDao()
             )
 
         val preferencesRepository =

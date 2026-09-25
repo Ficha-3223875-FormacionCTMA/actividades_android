@@ -1,8 +1,8 @@
 package com.example.miformacionctma.data.local.entity
 
-import androidx.room3.Entity
-import androidx.room3.Index
-import androidx.room3.PrimaryKey
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "actividades",
@@ -12,8 +12,9 @@ import androidx.room3.PrimaryKey
     ]
 )
 data class ActividadEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+
+    @PrimaryKey
+    val id: Long,
 
     val titulo: String,
 
@@ -25,6 +26,5 @@ data class ActividadEntity(
 
     val createdAt: String,
 
-    // NUEVO CAMPO DE LA VERSIÓN 2
     val resuelto: Boolean = false
 )
