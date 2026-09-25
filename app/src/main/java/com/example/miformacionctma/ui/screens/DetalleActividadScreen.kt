@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,9 +47,13 @@ fun DetalleActividadScreen(
         ) {
             Text("La actividad no existe.")
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
 
-            Button(onClick = onVolver) {
+            Button(
+                onClick = onVolver
+            ) {
                 Text("Volver")
             }
         }
@@ -64,6 +70,11 @@ fun DetalleActividadScreen(
     }
 
     var intentoGuardar by remember {
+        mutableStateOf(false)
+    }
+
+    // Controla si aparece la confirmación de eliminación.
+    var mostrarDialogoEliminar by remember {
         mutableStateOf(false)
     }
 
@@ -85,6 +96,40 @@ fun DetalleActividadScreen(
         validarTitulo(titulo) == null &&
                 validarDescripcion(descripcion) == null
 
+    // Confirmación antes de eliminar.
+    if (mostrarDialogoEliminar) {
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogoEliminar = false
+            },
+            title = {
+                Text("Eliminar actividad")
+            },
+            text = {
+                Text("¿Deseas eliminar esta actividad?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        mostrarDialogoEliminar = false
+                        onEliminar()
+                    }
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        mostrarDialogoEliminar = false
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -95,7 +140,9 @@ fun DetalleActividadScreen(
         item {
             Text("Editar actividad")
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             OutlinedTextField(
                 value = titulo,
@@ -109,7 +156,7 @@ fun DetalleActividadScreen(
                 isError = errorTitulo != null,
                 supportingText = {
                     if (errorTitulo != null) {
-                        Text(errorTitulo!!)
+                        Text(errorTitulo)
                     } else {
                         Text("${titulo.length}/80")
                     }
@@ -117,7 +164,9 @@ fun DetalleActividadScreen(
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
             OutlinedTextField(
                 value = descripcion,
@@ -132,14 +181,16 @@ fun DetalleActividadScreen(
                 isError = errorDescripcion != null,
                 supportingText = {
                     if (errorDescripcion != null) {
-                        Text(errorDescripcion!!)
+                        Text(errorDescripcion)
                     } else {
                         Text("${descripcion.length}/240")
                     }
                 }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             Button(
                 onClick = {
@@ -157,23 +208,33 @@ fun DetalleActividadScreen(
                 Text("Guardar cambios")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             HorizontalDivider()
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             Text("Evidencias")
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
         }
 
         if (evidencias.isEmpty()) {
 
             item {
-                Text("No hay evidencias fotográficas todavía.")
+                Text(
+                    "No hay evidencias fotográficas todavía."
+                )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
             }
 
         } else {
@@ -196,13 +257,17 @@ fun DetalleActividadScreen(
                         contentScale = ContentScale.Crop
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(
+                        modifier = Modifier.height(6.dp)
+                    )
 
                     Text(
                         text = "Estado: ${evidencia.estado}"
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
                 }
             }
         }
@@ -216,16 +281,25 @@ fun DetalleActividadScreen(
                 Text("Agregar evidencia fotográfica")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
 
+            // IMPORTANTE:
+            // No elimina directamente.
+            // Primero abre el cuadro de confirmación.
             Button(
-                onClick = onEliminar,
+                onClick = {
+                    mostrarDialogoEliminar = true
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Eliminar actividad")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
 
             Button(
                 onClick = onVolver,
@@ -234,7 +308,9 @@ fun DetalleActividadScreen(
                 Text("Volver")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
         }
     }
 }
