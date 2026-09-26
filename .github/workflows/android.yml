@@ -30,13 +30,19 @@ jobs:
         run: chmod +x gradlew
 
       - name: Ejecutar pruebas unitarias
-        run: ./gradlew test
+        run: ./gradlew testDevDebugUnitTest
 
       - name: Ejecutar Android Lint
         run: ./gradlew lintDevDebug
 
-      - name: Ejecutar pruebas instrumentadas
-        run: ./gradlew connectedDevDebugAndroidTest
+      - name: Configurar emulador Android y ejecutar pruebas instrumentadas
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: Pixel_2
+          script: ./gradlew connectedDevDebugAndroidTest
 
       - name: Generar APK Dev Debug
         run: ./gradlew assembleDevDebug
