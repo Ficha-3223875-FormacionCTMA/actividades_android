@@ -1,0 +1,48 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  build:
+    name: Pruebas, Lint y APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Dar permisos a Gradle
+        run: chmod +x gradlew
+
+      - name: Ejecutar pruebas unitarias
+        run: ./gradlew test
+
+      - name: Ejecutar Android Lint
+        run: ./gradlew lintDevDebug
+
+      - name: Ejecutar pruebas instrumentadas
+        run: ./gradlew connectedDevDebugAndroidTest
+
+      - name: Generar APK Dev Debug
+        run: ./gradlew assembleDevDebug
+
+      - name: Guardar APK como Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiFormacionCTMA-APK
+          path: app/build/outputs/apk/devDebug/*.apk
