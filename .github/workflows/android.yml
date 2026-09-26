@@ -1,4 +1,4 @@
-name: Android CI
+Qname: Android CI
 
 on:
   push:
@@ -42,6 +42,8 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Pixel_2
+          emulator-options: -no-window -no-audio -no-boot-anim
+          disable-animations: true
           script: ./gradlew connectedDevDebugAndroidTest
 
       - name: Generar APK Dev Debug
