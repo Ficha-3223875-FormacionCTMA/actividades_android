@@ -1,12 +1,13 @@
 package com.example.miformacionctma
 
-import androidx.room3.Room
+import android.content.Context
+import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.miformacionctma.data.local.database.AppDatabase
 import com.example.miformacionctma.data.local.entity.ActividadEntity
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -21,8 +22,8 @@ class ActividadDaoInstrumentedTest {
 
     @Before
     fun crearBaseDeDatos() {
-        val context =
-            ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context: Context =
+            ApplicationProvider.getApplicationContext()
 
         database = Room.inMemoryDatabaseBuilder(
             context,
@@ -38,30 +39,29 @@ class ActividadDaoInstrumentedTest {
     }
 
     private fun actividadPrueba(
-        id: Long = 0L,
+        id: Long = 1L,
         titulo: String = "Actividad de prueba"
-    ) = ActividadEntity(
-        id = id,
-        titulo = titulo,
-        descripcion = "Descripción de prueba",
-        aprendiz = "APR-01",
-        estado = "PENDIENTE",
-        createdAt = "2026-09-21T00:00:00",
-        resuelto = false
-    )
+    ): ActividadEntity {
+        return ActividadEntity(
+            id = id,
+            titulo = titulo,
+            descripcion = "Descripción de prueba",
+            aprendiz = "APR-01",
+            estado = "PENDIENTE",
+            createdAt = "2026-09-21T00:00:00",
+            resuelto = false
+        )
+    }
 
     @Test
-    fun guardarYConsultarActividad() = runTest {
+    fun guardarYConsultarActividad() = runBlocking {
         val dao = database.actividadDao()
 
-        val id = dao.guardar(
-            actividadPrueba()
-        )
+        dao.guardar(actividadPrueba())
 
-        val resultado = dao.obtenerPorId(id)
+        val resultado = dao.obtenerPorId(1L)
 
         assertNotNull(resultado)
-
         assertEquals(
             "Actividad de prueba",
             resultado?.titulo
@@ -69,15 +69,12 @@ class ActividadDaoInstrumentedTest {
     }
 
     @Test
-    fun buscarActividadPorTexto() = runTest {
+    fun buscarActividadPorTexto() = runBlocking {
         val dao = database.actividadDao()
 
-        dao.guardar(
-            actividadPrueba()
-        )
+        dao.guardar(actividadPrueba())
 
-        val resultados =
-            dao.buscar("prueba").first()
+        val resultados = dao.buscar("prueba").first()
 
         assertEquals(
             1,
@@ -86,22 +83,19 @@ class ActividadDaoInstrumentedTest {
     }
 
     @Test
-    fun actualizarActividad() = runTest {
+    fun actualizarActividad() = runBlocking {
         val dao = database.actividadDao()
 
-        val id = dao.guardar(
-            actividadPrueba()
-        )
+        dao.guardar(actividadPrueba())
 
         dao.guardar(
             actividadPrueba(
-                id = id,
+                id = 1L,
                 titulo = "Actividad actualizada"
             )
         )
 
-        val resultado =
-            dao.obtenerPorId(id)
+        val resultado = dao.obtenerPorId(1L)
 
         assertEquals(
             "Actividad actualizada",
@@ -110,17 +104,14 @@ class ActividadDaoInstrumentedTest {
     }
 
     @Test
-    fun eliminarActividad() = runTest {
+    fun eliminarActividad() = runBlocking {
         val dao = database.actividadDao()
 
-        val id = dao.guardar(
-            actividadPrueba()
-        )
+        dao.guardar(actividadPrueba())
 
-        dao.eliminarPorId(id)
+        dao.eliminarPorId(1L)
 
-        val resultado =
-            dao.obtenerPorId(id)
+        val resultado = dao.obtenerPorId(1L)
 
         assertEquals(
             null,

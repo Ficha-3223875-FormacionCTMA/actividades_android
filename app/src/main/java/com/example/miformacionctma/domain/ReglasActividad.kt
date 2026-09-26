@@ -14,8 +14,8 @@ fun validarActividad(
 
     val errores = mutableListOf<String>()
 
-    if (titulo.trim().isEmpty()) {
-        errores.add("El título es obligatorio")
+    if (titulo.trim().length < 3){
+        errores.add("El titulo debe tener al menos 3 caracteres")
     }
 
     if (progreso !in 0..100) {

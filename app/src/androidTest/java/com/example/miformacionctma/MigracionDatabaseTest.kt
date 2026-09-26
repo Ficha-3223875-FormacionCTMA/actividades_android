@@ -1,11 +1,12 @@
 package com.example.miformacionctma
 
-import androidx.room3.Room
-import androidx.sqlite.driver.AndroidSQLiteDriver
+import android.content.Context
+import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.miformacionctma.data.local.database.AppDatabase
-import com.example.miformacionctma.data.local.database.MIGRATION_1_2
+import com.example.miformacionctma.data.local.entity.ActividadEntity
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -20,18 +21,15 @@ class MigracionDatabaseTest {
 
     @Before
     fun crearBaseDeDatos() {
+        val context: Context =
+            ApplicationProvider.getApplicationContext()
 
-        val context =
-            ApplicationProvider.getApplicationContext<android.content.Context>()
-
-        database =
-            Room.inMemoryDatabaseBuilder(
-                context,
-                AppDatabase::class.java
-            )
-                .setDriver(AndroidSQLiteDriver())
-                .addMigrations(MIGRATION_1_2)
-                .build()
+        database = Room.inMemoryDatabaseBuilder(
+            context,
+            AppDatabase::class.java
+        )
+            .allowMainThreadQueries()
+            .build()
     }
 
     @After
@@ -40,37 +38,30 @@ class MigracionDatabaseTest {
     }
 
     @Test
-    fun migracionConservaDatosYResueltoEsFalse() {
+    fun actividadNuevaTieneResueltoEnFalse() = runBlocking {
+        val dao = database.actividadDao()
 
-        val actividad =
-            com.example.miformacionctma.data.local.entity.ActividadEntity(
-                titulo = "Actividad antigua",
-                descripcion = "Actividad de prueba",
-                aprendiz = "APR-01",
-                estado = "PENDIENTE",
-                createdAt = "2026-09-21T00:00:00",
-                resuelto = false
-            )
+        val actividad = ActividadEntity(
+            id = 1L,
+            titulo = "Actividad antigua",
+            descripcion = "Actividad de prueba",
+            aprendiz = "APR-01",
+            estado = "PENDIENTE",
+            createdAt = "2026-09-21T00:00:00",
+            resuelto = false
+        )
 
-        val dao =
-            database.actividadDao()
+        dao.guardar(actividad)
 
-        kotlinx.coroutines.runBlocking {
+        val resultado = dao.obtenerPorId(1L)
 
-            val id =
-                dao.guardar(actividad)
+        assertEquals(
+            "Actividad antigua",
+            resultado?.titulo
+        )
 
-            val resultado =
-                dao.obtenerPorId(id)
-
-            assertEquals(
-                "Actividad antigua",
-                resultado?.titulo
-            )
-
-            assertFalse(
-                resultado?.resuelto ?: true
-            )
-        }
+        assertFalse(
+            resultado?.resuelto ?: true
+        )
     }
 }

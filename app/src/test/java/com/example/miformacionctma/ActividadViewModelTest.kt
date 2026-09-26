@@ -2,11 +2,16 @@ package com.example.miformacionctma
 
 import com.example.miformacionctma.data.Actividad
 import com.example.miformacionctma.data.ActividadRepository
-import com.example.miformacionctma.data.ActividadesResponse
 import com.example.miformacionctma.data.ApiService
 import com.example.miformacionctma.data.PreferenciasDataSource
 import com.example.miformacionctma.data.local.dao.ActividadDao
+import com.example.miformacionctma.data.local.dao.EvidenciaDao
 import com.example.miformacionctma.data.local.entity.ActividadEntity
+import com.example.miformacionctma.data.local.entity.EvidenciaEntity
+import com.example.miformacionctma.data.remote.ActividadDto
+import com.example.miformacionctma.data.remote.ActividadResponseDto
+import com.example.miformacionctma.data.remote.CrearActividadDto
+import com.example.miformacionctma.data.remote.EvidenciaResponseDto
 import com.example.miformacionctma.ui.viewmodel.ActividadViewModel
 import com.example.miformacionctma.ui.viewmodel.ListadoUiState
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +26,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import okhttp3.MultipartBody
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -33,25 +39,24 @@ import org.junit.Test
 )
 class ActividadViewModelTest {
 
-    private val dispatcher =
-        StandardTestDispatcher()
+    private val dispatcher = StandardTestDispatcher()
 
     private lateinit var dao: FakeActividadDao
-
+    private lateinit var evidenciaDao: FakeEvidenciaDao
     private lateinit var repository: ActividadRepository
-
     private lateinit var preferences: FakePreferenciasDataSource
 
     @Before
     fun configurar() {
-
         Dispatchers.setMain(dispatcher)
 
         dao = FakeActividadDao()
+        evidenciaDao = FakeEvidenciaDao()
 
         repository = ActividadRepository(
             api = FakeApiService(),
-            dao = dao
+            dao = dao,
+            evidenciaDao = evidenciaDao
         )
 
         preferences = FakePreferenciasDataSource()
@@ -66,16 +71,14 @@ class ActividadViewModelTest {
     fun ca01_sinActividades_muestraVacio() =
         runTest {
 
-            val viewModel =
-                ActividadViewModel(
-                    repository = repository,
-                    preferencesRepository = preferences
-                )
+            val viewModel = ActividadViewModel(
+                repository = repository,
+                preferencesRepository = preferences
+            )
 
-            val coleccion =
-                launch {
-                    viewModel.listadoUiState.collect { }
-                }
+            val coleccion = launch {
+                viewModel.listadoUiState.collect { }
+            }
 
             advanceUntilIdle()
 
@@ -91,42 +94,37 @@ class ActividadViewModelTest {
     fun ca02_roomActualizaElContenidoAutomaticamente() =
         runTest {
 
-            val viewModel =
-                ActividadViewModel(
-                    repository = repository,
-                    preferencesRepository = preferences
-                )
+            val viewModel = ActividadViewModel(
+                repository = repository,
+                preferencesRepository = preferences
+            )
 
-            val coleccion =
-                launch {
-                    viewModel.listadoUiState.collect { }
-                }
+            val coleccion = launch {
+                viewModel.listadoUiState.collect { }
+            }
 
             advanceUntilIdle()
 
-            val actividad =
-                ActividadEntity(
-                    id = 1,
-                    titulo = "Actividad Flow",
-                    descripcion = "Prueba reactiva",
-                    aprendiz = "APR-01",
-                    estado = "PENDIENTE",
-                    createdAt = ""
-                )
+            val actividad = ActividadEntity(
+                id = 1,
+                titulo = "Actividad Flow",
+                descripcion = "Prueba reactiva",
+                aprendiz = "APR-01",
+                estado = "PENDIENTE",
+                createdAt = ""
+            )
 
             dao.agregar(actividad)
 
             advanceUntilIdle()
 
-            val estado =
-                viewModel.listadoUiState.value
+            val estado = viewModel.listadoUiState.value
 
             assertTrue(
                 estado is ListadoUiState.Contenido
             )
 
-            val contenido =
-                estado as ListadoUiState.Contenido
+            val contenido = estado as ListadoUiState.Contenido
 
             assertEquals(
                 1,
@@ -156,16 +154,14 @@ class ActividadViewModelTest {
                 )
             )
 
-            val viewModel =
-                ActividadViewModel(
-                    repository = repository,
-                    preferencesRepository = preferences
-                )
+            val viewModel = ActividadViewModel(
+                repository = repository,
+                preferencesRepository = preferences
+            )
 
-            val coleccion =
-                launch {
-                    viewModel.listadoUiState.collect { }
-                }
+            val coleccion = launch {
+                viewModel.listadoUiState.collect { }
+            }
 
             advanceUntilIdle()
 
@@ -174,15 +170,13 @@ class ActividadViewModelTest {
             advanceTimeBy(400)
             advanceUntilIdle()
 
-            val estado =
-                viewModel.listadoUiState.value
+            val estado = viewModel.listadoUiState.value
 
             assertTrue(
                 estado is ListadoUiState.Contenido
             )
 
-            val contenido =
-                estado as ListadoUiState.Contenido
+            val contenido = estado as ListadoUiState.Contenido
 
             assertTrue(
                 contenido.actividades.isEmpty()
@@ -217,16 +211,14 @@ class ActividadViewModelTest {
                 )
             )
 
-            val viewModel =
-                ActividadViewModel(
-                    repository = repository,
-                    preferencesRepository = preferences
-                )
+            val viewModel = ActividadViewModel(
+                repository = repository,
+                preferencesRepository = preferences
+            )
 
-            val coleccion =
-                launch {
-                    viewModel.listadoUiState.collect { }
-                }
+            val coleccion = launch {
+                viewModel.listadoUiState.collect { }
+            }
 
             advanceUntilIdle()
 
@@ -235,15 +227,13 @@ class ActividadViewModelTest {
             advanceTimeBy(400)
             advanceUntilIdle()
 
-            val estado =
-                viewModel.listadoUiState.value
+            val estado = viewModel.listadoUiState.value
 
             assertTrue(
                 estado is ListadoUiState.Contenido
             )
 
-            val contenido =
-                estado as ListadoUiState.Contenido
+            val contenido = estado as ListadoUiState.Contenido
 
             assertEquals(
                 1,
@@ -261,113 +251,75 @@ class ActividadViewModelTest {
 
 /**
  * Implementación falsa de preferencias.
- *
- * No utiliza Android ni DataStore.
  */
 private class FakePreferenciasDataSource :
     PreferenciasDataSource {
 
-    private val orden =
-        MutableStateFlow(true)
+    private val orden = MutableStateFlow(true)
 
-    override fun observarOrdenDescendente():
-            Flow<Boolean> {
-
+    override fun observarOrdenDescendente(): Flow<Boolean> {
         return orden
     }
 
     override suspend fun guardarOrdenDescendente(
         descendente: Boolean
     ) {
-
         orden.value = descendente
     }
 }
 
 /**
- * DAO falso utilizado únicamente
- * durante las pruebas unitarias.
+ * DAO falso utilizado durante las pruebas unitarias.
  */
 private class FakeActividadDao :
     ActividadDao {
 
     private val actividades =
-        MutableStateFlow<List<ActividadEntity>>(
-            emptyList()
-        )
+        MutableStateFlow<List<ActividadEntity>>(emptyList())
 
     override fun observarActividades():
             Flow<List<ActividadEntity>> {
-
         return actividades
     }
 
     override suspend fun obtenerPorId(
         id: Long
     ): ActividadEntity? {
-
-        return actividades.value
-            .firstOrNull {
-                it.id == id
-            }
+        return actividades.value.firstOrNull {
+            it.id == id
+        }
     }
 
     override fun buscar(
         texto: String
     ): Flow<List<ActividadEntity>> {
-
         return actividades
     }
 
     override suspend fun guardar(
         actividad: ActividadEntity
-    ): Long {
-
-        val id =
-            if (actividad.id == 0L) {
-
-                (actividades.value
-                    .maxOfOrNull { it.id }
-                    ?: 0L) + 1L
-
-            } else {
-
-                actividad.id
-            }
-
-        val nueva =
-            actividad.copy(
-                id = id
-            )
-
+    ) {
         actividades.value =
             actividades.value
                 .filterNot {
-                    it.id == id
+                    it.id == actividad.id
                 } +
-                    nueva
-
-        return id
+                    actividad
     }
 
     override suspend fun guardarTodas(
         actividades: List<ActividadEntity>
     ) {
-
-        this.actividades.value =
-            actividades
+        this.actividades.value = actividades
     }
 
     override suspend fun eliminarTodas() {
-
-        actividades.value =
-            emptyList()
+        actividades.value = emptyList()
     }
 
     override suspend fun eliminarPorId(
         id: Long
     ) {
-
         actividades.value =
             actividades.value.filterNot {
                 it.id == id
@@ -377,9 +329,90 @@ private class FakeActividadDao :
     fun agregar(
         actividad: ActividadEntity
     ) {
-
         actividades.value =
             actividades.value + actividad
+    }
+}
+
+/**
+ * DAO falso para evidencias.
+ */
+private class FakeEvidenciaDao :
+    EvidenciaDao {
+
+    private val evidencias =
+        MutableStateFlow<List<EvidenciaEntity>>(emptyList())
+
+    override fun observarPorActividad(
+        actividadId: Long
+    ): Flow<List<EvidenciaEntity>> {
+        return evidencias
+    }
+
+    override suspend fun obtenerPorId(
+        id: String
+    ): EvidenciaEntity? {
+        return evidencias.value.firstOrNull {
+            it.id == id
+        }
+    }
+
+    override suspend fun guardar(
+        evidencia: EvidenciaEntity
+    ) {
+        evidencias.value =
+            evidencias.value
+                .filterNot {
+                    it.id == evidencia.id
+                } +
+                    evidencia
+    }
+
+    override suspend fun guardarTodas(
+        evidencias: List<EvidenciaEntity>
+    ) {
+        this.evidencias.value = evidencias
+    }
+
+    override suspend fun actualizar(
+        evidencia: EvidenciaEntity
+    ) {
+        evidencias.value =
+            evidencias.value
+                .map {
+                    if (it.id == evidencia.id) {
+                        evidencia
+                    } else {
+                        it
+                    }
+                }
+    }
+
+    override suspend fun eliminar(
+        evidencia: EvidenciaEntity
+    ) {
+        evidencias.value =
+            evidencias.value.filterNot {
+                it.id == evidencia.id
+            }
+    }
+
+    override suspend fun eliminarPorId(
+        id: String
+    ) {
+        evidencias.value =
+            evidencias.value.filterNot {
+                it.id == id
+            }
+    }
+
+    override suspend fun eliminarPorActividad(
+        actividadId: Long
+    ) {
+        evidencias.value =
+            evidencias.value.filterNot {
+                it.actividadId == actividadId
+            }
     }
 }
 
@@ -393,9 +426,9 @@ private class FakeApiService :
 
     override suspend fun obtenerActividades(
         token: String
-    ): ActividadesResponse {
+    ): ActividadResponseDto {
 
-        return ActividadesResponse(
+        return ActividadResponseDto(
             total = 0,
             actividades = emptyList()
         )
@@ -403,9 +436,26 @@ private class FakeApiService :
 
     override suspend fun crearActividad(
         token: String,
-        actividad: Actividad
-    ): Actividad {
+        actividad: CrearActividadDto
+    ): ActividadDto {
 
-        return actividad
+        return ActividadDto(
+            id = "1",
+            titulo = actividad.titulo,
+            descripcion = actividad.descripcion,
+            aprendiz = actividad.aprendiz,
+            estado = "PENDIENTE",
+            createdAt = ""
+        )
+    }
+
+    override suspend fun subirEvidencia(
+        actividadId: String,
+        token: String,
+        archivo: MultipartBody.Part
+    ): EvidenciaResponseDto {
+        throw UnsupportedOperationException(
+            "No se utiliza en estas pruebas unitarias"
+        )
     }
 }
