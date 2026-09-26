@@ -1,0 +1,237 @@
+package com.luciana.miformacionctma.domain
+
+fun validarActividad(
+    titulo: String,
+    progreso: Int
+): List<String> {
+
+    val errores = mutableListOf<String>()
+
+    if (titulo.isBlank()) {
+        errores.add("El título es obligatorio")
+    }
+
+    if (progreso !in 0..100) {
+        errores.add("El progreso debe estar entre 0 y 100")
+    }
+
+    return errores
+}
+
+/*
+ * Determina el estado de una actividad.
+ */
+fun estadoActividad(
+    actividad: ActividadFormativa
+): EstadoActividad {
+
+    return when {
+
+        actividad.progreso == 100 ->
+            EstadoActividad.COMPLETADA
+
+        actividad.diasRestantes < 0 ->
+            EstadoActividad.VENCIDA
+
+        actividad.progreso > 0 ->
+            EstadoActividad.EN_PROCESO
+
+        else ->
+            EstadoActividad.PENDIENTE
+    }
+}
+
+/*
+ * Devuelve las actividades urgentes.
+ */
+fun actividadesUrgentes(
+    actividades: List<ActividadFormativa>
+): List<ActividadFormativa> {
+
+    return actividades.filter {
+
+        it.progreso < 100 &&
+                it.diasRestantes <= 2
+
+    }
+}
+
+/*
+ * Calcula el promedio del progreso.
+ */
+fun promedioProgreso(
+    actividades: List<ActividadFormativa>
+): Double {
+
+    if (actividades.isEmpty()) {
+        return 0.0
+    }
+
+    return actividades
+        .map { it.progreso }
+        .average()
+}
+
+/*
+ * Busca actividades por título.
+ */
+fun buscarPorTitulo(
+    actividades: List<ActividadFormativa>,
+    texto: String
+): List<ActividadFormativa> {
+
+    val busqueda = texto.trim()
+
+    if (busqueda.isEmpty()) {
+        return actividades
+    }
+
+    return actividades.filter {
+
+        it.titulo.contains(
+            busqueda,
+            ignoreCase = true
+        )
+
+    }
+}
+
+/*
+ * Ordena:
+ * 1. Vencidas
+ * 2. Prioridad Alta
+ * 3. Menor número de días
+ */
+fun ordenarActividades(
+    actividades: List<ActividadFormativa>
+): List<ActividadFormativa> {
+
+    return actividades.sortedWith(
+
+        compareByDescending<ActividadFormativa> {
+
+            estadoActividad(it) == EstadoActividad.VENCIDA
+
+        }
+
+            .thenByDescending {
+
+                when (it.prioridad) {
+
+                    Prioridad.ALTA -> 3
+                    Prioridad.MEDIA -> 2
+                    Prioridad.BAJA -> 1
+                }
+
+            }
+
+            .thenBy {
+
+                it.diasRestantes
+
+            }
+
+    )
+}
+
+/*
+ * Genera un resumen de las actividades.
+ */
+fun generarResumen(
+    actividades: List<ActividadFormativa>
+): String {
+
+    val promedio = promedioProgreso(actividades)
+
+    val completadas = actividades.count {
+
+        estadoActividad(it) == EstadoActividad.COMPLETADA
+
+    }
+
+    val vencidas = actividades.count {
+
+        estadoActividad(it) == EstadoActividad.VENCIDA
+
+    }
+
+    val urgentes = actividadesUrgentes(actividades).size
+
+    return """
+Total de actividades: ${actividades.size}
+Promedio: ${"%.1f".format(promedio)} %
+Completadas: $completadas
+Vencidas: $vencidas
+Urgentes: $urgentes
+""".trimIndent()
+
+}
+
+/*
+ * Valida el título del formulario.
+ */
+fun validarTitulo(titulo: String): String? {
+
+    val tituloLimpio = titulo.trim()
+
+    return when {
+        tituloLimpio.isEmpty() ->
+            "El título es obligatorio"
+
+        tituloLimpio.length < 3 ->
+            "El título debe tener mínimo 3 caracteres"
+
+        tituloLimpio.length > 80 ->
+            "El título debe tener máximo 80 caracteres"
+
+        else -> null
+    }
+}
+
+/*
+ * Valida la descripción del formulario.
+ */
+fun validarDescripcion(descripcion: String): String? {
+
+    return if (descripcion.length > 240) {
+        "La descripción debe tener máximo 240 caracteres"
+    } else {
+        null
+    }
+}
+
+/*
+ * Valida el progreso de la actividad.
+ */
+fun validarProgreso(progreso: String): String? {
+
+    val valor = progreso.toIntOrNull()
+
+    return when {
+        valor == null ->
+            "El progreso debe ser un número"
+
+        valor !in 0..100 ->
+            "El progreso debe estar entre 0 y 100"
+
+        else -> null
+    }
+}
+
+
+/** Valida dd/MM/yyyy y exige que la fecha no sea anterior a hoy. */
+fun validarFecha(fecha: String): String? {
+    val limpia = fecha.trim()
+    if (limpia.isEmpty()) return "La fecha es obligatoria"
+    val formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/uuuu")
+        .withResolverStyle(java.time.format.ResolverStyle.STRICT)
+    val fechaIngresada = try {
+        java.time.LocalDate.parse(limpia, formatter)
+    } catch (_: Exception) {
+        return "La fecha debe tener formato dd/MM/yyyy y ser válida"
+    }
+    if (fechaIngresada.isBefore(java.time.LocalDate.now())) {
+        return "La fecha no puede ser anterior a hoy"
+    }
+    return null
+}

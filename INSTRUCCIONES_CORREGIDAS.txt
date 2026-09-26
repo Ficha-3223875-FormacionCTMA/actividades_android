@@ -1,0 +1,30 @@
+MI FORMACION CTMA - VERSION CORREGIDA
+
+1. Abre esta carpeta en Android Studio:
+   MiFormacionCTMA
+
+2. Selecciona la variante:
+   devDebug
+
+3. Inicia la API en Windows:
+   abre api\iniciar_api.bat
+   No cierres esa ventana mientras uses la sincronización.
+
+4. Comprueba en el PC:
+   http://127.0.0.1:8000/docs
+
+5. El emulador Android se conecta al PC mediante:
+   http://10.0.2.2:8000/
+
+6. Para una imagen:
+   Detalle de actividad -> Elegir imagen.
+   Ahora se usa el selector de archivos de Android (image/*), que permite
+   seleccionar archivos que estén en Pictures/Download del emulador.
+   También puedes usar Tomar foto.
+
+7. La evidencia se guarda primero en el dispositivo.
+   Luego "Sincronizar evidencia" la envía a:
+   POST /api/actividades/{id}/evidencias
+
+No se cambiaron las actividades ni la estructura funcional principal.
+Se eliminaron copias duplicadas "(2)" y se corrigió la conexión Android <-> FastAPI.

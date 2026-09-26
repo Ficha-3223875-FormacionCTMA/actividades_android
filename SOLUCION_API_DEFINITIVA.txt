@@ -1,0 +1,5 @@
+SOLUCION API LOCAL
+
+La sincronizacion y subida de evidencias ahora usan un cliente HTTP directo contra BuildConfig.API_BASE_URL, sin depender del flujo Retrofit para las operaciones reales. Se fuerza Proxy.NO_PROXY, Authorization token-APR-01, timeouts razonables y HTTP multipart para evidencias.
+
+USO: abrir la carpeta en Android Studio, ejecutar api/main.py con 0.0.0.0:8000, seleccionar devDebug y ejecutar.

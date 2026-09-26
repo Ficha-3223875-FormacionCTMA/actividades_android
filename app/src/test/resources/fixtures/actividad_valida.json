@@ -1,0 +1,13 @@
+[
+  {
+    "id": "a-100",
+    "titulo": "Actividad REST válida",
+    "descripcion": "Carga desde servidor simulado",
+    "progreso": 60,
+    "prioridad": "ALTA",
+    "competencia_id": "ADSO-01",
+    "fecha_limite": "30/09/2026",
+    "completada": false,
+    "actualizado_en": "2026-09-23T10:00:00Z"
+  }
+]

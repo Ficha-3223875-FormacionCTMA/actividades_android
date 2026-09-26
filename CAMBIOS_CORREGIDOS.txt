@@ -1,0 +1,30 @@
+MI FORMACION CTMA - CORRECCION DE API Y EVIDENCIAS
+
+Se corrigieron los dos problemas reportados:
+1. Sincronizacion de actividades desde la API local.
+2. Subida de imagenes/evidencias desde el emulador.
+
+CAMBIOS REALIZADOS
+- Las tres variantes Android (dev, stage y prod) apuntan temporalmente a la API local del emulador:
+  http://10.0.2.2:8000/
+- Retrofit/OkHttp fuerza el header Authorization con token-APR-01 en todas las peticiones.
+- Esto incluye peticiones normales y multipart para subir evidencias.
+- FastAPI acepta tanto Authorization: token-APR-01 como Authorization: Bearer token-APR-01.
+- Se conservaron los endpoints y la estructura general del proyecto.
+- Se elimino la dependencia de que cada llamada individual sea la unica encargada de enviar la autorizacion.
+
+COMO EJECUTAR
+1. Abre la carpeta del proyecto en Android Studio.
+2. En una terminal de Windows ejecuta la API desde la carpeta api:
+   python -m uvicorn main:app --host 0.0.0.0 --port 8000
+3. Comprueba en el navegador del emulador:
+   http://10.0.2.2:8000/docs
+4. En Android Studio selecciona la variante devDebug.
+5. Si ya tienes instalada una version anterior de Mi Formacion CTMA, desinstalala del emulador una vez y luego ejecuta la app de nuevo para instalar la version corregida.
+6. Dentro de la app pulsa "Sincronizar actividades desde API".
+7. Para una evidencia, selecciona una imagen PNG/JPG/WEBP de menos de 5 MB y pulsa "Sincronizar evidencia".
+
+IMPORTANTE
+- No necesitas abrir Swagger para que la app funcione; Swagger solo sirve para comprobar la API.
+- La API debe permanecer ejecutandose mientras usas la aplicacion.
+- Para este proyecto local se debe usar devDebug.
